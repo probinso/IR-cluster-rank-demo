@@ -15,3 +15,7 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ python src/app.py
 ```
+
+### Note
+
+This is presently a study in abuse of python coroutines...
