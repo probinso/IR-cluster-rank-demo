@@ -1,17 +1,7 @@
-# flask+d3 Hello World
+# IR - Cluster Rank Demo
 
 ### author
 
-* [Dan Foreman-Mackey](http://danfm.ca/)
+* [Philip Robinson](http://github.com/probinso)
+* Derived from [work](https://github.com/dfm/flask-d3-hello-world) by __[Dan Foreman-Mackey](http://danfm.ca/)__
 
-### contributors
-
-* [David W. Hogg](http://cosmo.nyu.edu/hogg/)
-
-### do it
-
-1. Install [flask](http://flask.pocoo.org/) and [numpy](http://numpy.scipy.org/).
-
-2. Execute:
-
-    python app.py
