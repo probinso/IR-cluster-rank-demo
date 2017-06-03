@@ -23,7 +23,6 @@ def select(D, rank):
         complete = dict()
         for l in np.unique(labels):
             keys = np.array([i for i, b in enumerate(labels==l) if b])
-            ctr  = centers[l]
 
             gk = rank(D[keys, :])
 
@@ -36,11 +35,13 @@ def select(D, rank):
         display, complete = represent(DD)
         yield display
         select = (yield)
+
+        print("SELECT :::: {}".format(select), file=sys.stderr)
         if select == -1:
             break
         DD = DD[complete[select], :]
 
-    return complete[select]
+    return complete
 
 
 def centroid_rank(n_display, M):
@@ -68,11 +69,11 @@ def process(data, operation):
 
     crt   = select(XY, partial(centroid_rank, 3))
     groups = next(crt)
-    while True:
+    while crt:
         yield operation(groups)
 
         _   = next(crt)
-        key = int(input('>> '))
+        key = (yield)
         groups = crt.send(key)
 
 
