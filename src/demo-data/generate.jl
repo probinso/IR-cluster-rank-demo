@@ -2,7 +2,11 @@
 
 using Distributions
 
-size, subsize, depth = parse(Int, ARGS[1]), parse(Int, ARGS[2]), parse(Int, ARGS[3])
+
+size, subsize, depth =
+    parse(Int, ARGS[1]), parse(Int, ARGS[2]), parse(Int, ARGS[3])
+
+oname = ARGS[4]
 
 
 function generator(μ, subsize, size, depth)
@@ -27,7 +31,8 @@ using DataFrames
 
 df = DataFrame(x=Data[:, 1], y=Data[:, 2], mux=Data[:, 3], muy=Data[:, 4])
 
-writetable("jam.csv", df)
+title = "$(oname)_$(size)_$(subsize)_$(depth)"
+writetable("$(title).csv", df)
 
 using Plots
 
@@ -35,4 +40,4 @@ df[:group] = (df[:mux] .* df[:muy])
 
 plt = scatter(df[:x], df[:y], color=df[:group])
 
-png("plot")
+png(title)
