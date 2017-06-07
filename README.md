@@ -27,6 +27,9 @@ I hope to show that there is value in the separation of `relevance`, `clustering
 The project follows the pattern bellow...
 
 ```
+identify relevant documents
+rank documents
+select top N documents
 while True:
     cluster documents
     rank clusters
