@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 
-import csv
 import json
-import sys
-
-from operator  import itemgetter
-from functools import partial
 
 import numpy as np
 
