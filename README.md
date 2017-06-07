@@ -31,6 +31,7 @@ while True:
     cluster documents
     rank clusters
     report highest ranked values for each cluster
+    select a cluster
 ```
 
 ### Note
