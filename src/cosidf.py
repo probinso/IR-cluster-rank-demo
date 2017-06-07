@@ -5,14 +5,19 @@ from operator import itemgetter
 
 import numpy as np
 
-from sklearn.feature_selection.text import TfidfVectorizer
-from sklearn.metricx.pairwise import cosine_similarity
-from sklearn.cluster
+import nltk
+from nltk.stem.snowball import SnowballStemmer
 
-from olib import np, IOrganizer, interface
+import sklearn
+from sklearn import feature_extraction
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+
+from olib import IOrganizer, interface
 
 
-class lsiOrganizer(IOrganizer):
+class cosidfOrganizer(IOrganizer):
     pass
 
 
