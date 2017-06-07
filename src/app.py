@@ -19,14 +19,13 @@ STATE = None
 def read():
     ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv'
 
-    print("***", file=sys.stderr)
     with open(ifname, 'rb') as fd:
         data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
 
     io = data[:, 0:2].view(base.IOrganizer)
 
     global STATE
-    STATE = base.selector(io)
+    STATE = io.selector(2)
 
     return base.tojson(next(STATE))
 

@@ -46,8 +46,21 @@ class Organizer(np.ndarray):
     def _all_idx(self):
         return np.arange(0, self._count)
 
-    def process(self):
-        pass
+    def selector(self, show=3):
+        D = self
+        while True:
+
+            cl_idx = D.cluster()
+            clstrs = {k: D[v, :] for k, v in cl_idx.items()}
+            ranked = {k: v[v.rank(), :] for k, v in clstrs.items()}
+
+            yield {k: v[0:show, :] for k, v in ranked.items()}
+            select = (yield)
+
+            if select not in range(len(ranked)):
+                break
+            D = ranked[select]
+        return ranked
 
 
 class IRelivance(Organizer):
