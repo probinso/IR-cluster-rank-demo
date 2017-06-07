@@ -1,4 +1,4 @@
-# clurk
+# clurak
 
 Information Retrieval - Cluster Rank Demo Harness
 
@@ -22,7 +22,7 @@ $ python src/app.py
 
 I hope to show that there is value in the separation of `relevance`, `clustering`, and `ranking` in information retrieval systems. I expect that injecting clustering algorithms into the listing and user selection process will increase results diversity in a beneficial way.
 
-`clurk` hopes to provide a web interface for displaying results, and a simple system to author your own `Observers` that provide `relevance`, `clustering`, and `ranking` models. As a user of `clurk`, you will be responsible for converting your document set into a csv of features.
+`clurak` hopes to provide a web interface for displaying results, and a simple system to author your own `Observers` that provide `relevance`, `clustering`, and `ranking` models. As a user of `clurak`, you will be responsible for converting your document set into a csv of features.
 
 The project follows the pattern bellow...
 
