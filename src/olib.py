@@ -6,22 +6,6 @@ import sys
 import numpy as np
 
 
-def selector(D, show=3):
-    while True:
-
-        cl_idx = D.cluster()
-        clstrs = {k: D[v, :] for k, v in cl_idx.items()}
-        ranked = {k: v[v.rank(), :] for k, v in clstrs.items()}
-
-        yield {k: v[0:show, :] for k, v in ranked.items()}
-        select = (yield)
-
-        if select not in range(len(ranked)):
-            break
-        D = ranked[select]
-    return ranked
-
-
 class Organizer(np.ndarray):
     """
       DATA : np.array where each index represents a document vector
@@ -34,9 +18,6 @@ class Organizer(np.ndarray):
 
     def rank(self, *args, **kwargs):
         raise NotImplemented
-
-    def select(self, idx):
-        return self.__class__(self[idx])
 
     @property
     def _count(self):
@@ -110,7 +91,7 @@ def interface(inpath, cls):
 
     io = data[:, 0:2].view(cls)
 
-    ctr = selector(io)
+    ctr = io.selector()
     result = next(ctr)
     while ctr:
         print(tojson(result))
