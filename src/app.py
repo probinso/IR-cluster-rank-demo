@@ -8,7 +8,7 @@ import json
 import flask
 import numpy as np
 
-import lib
+import olib as base
 
 
 app = flask.Flask(__name__)
@@ -17,12 +17,18 @@ STATE = None
 
 @app.route('/reset')
 def read():
-    with open('/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv', 'rb') as fd:
+    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv'
+
+    print("***", file=sys.stderr)
+    with open(ifname, 'rb') as fd:
         data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
 
+    io = data[:, 0:2].view(base.IOrganizer)
+
     global STATE
-    STATE = lib.process(data, lib.tojson)
-    return next(STATE)
+    STATE = base.selector(io)
+
+    return base.tojson(next(STATE))
 
 
 import sys
@@ -30,7 +36,7 @@ import sys
 
 def increment(clstr_id):
     _ = next(STATE)
-    return STATE.send(clstr_id)
+    return base.tojson(STATE.send(clstr_id))
 
 @app.route('/select/<int:clstr_id>')
 def select(clstr_id):
