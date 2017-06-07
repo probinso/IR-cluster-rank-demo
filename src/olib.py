@@ -8,8 +8,6 @@ from operator  import itemgetter
 from functools import partial
 
 import numpy as np
-#from sklearn.cluster import KMeans
-#from scipy.spatial.distance import cdist
 
 
 def selector(D, show=3):
@@ -99,8 +97,14 @@ def interface(inpath):
         data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
 
     io = data[:, 0:2].view(IOrganizer)
-    for result in selector(io):
+
+    ctr = selector(io)
+    result = next(ctr)
+    while ctr:
         print(tojson(result))
+        _   = next(ctr)
+        key = int(input('>> '))
+        result = ctr.send(key)
 
 
 def cli_interface():
