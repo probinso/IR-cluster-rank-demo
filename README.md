@@ -30,6 +30,7 @@ The project follows the pattern bellow...
 identify relevant documents
 rank documents
 select top N documents
+
 while True:
     cluster documents
     rank clusters
