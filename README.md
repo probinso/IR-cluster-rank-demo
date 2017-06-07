@@ -1,4 +1,6 @@
-# IR - Cluster Rank Demo
+# clurk
+
+Information Retrieval - Cluster Rank Demo Harness
 
 ### Author
 
@@ -16,6 +18,21 @@ $ pip install -r requirements.txt
 $ python src/app.py
 ```
 
+### Description
+
+I hope to show that there is value in the seperation of `relevance`, `clustering`, and `ranking` in information retrieval systems. I expect that injecting clustering algorithms into the listing and user selection process will increase results diversity in a benificial way.
+
+`clurk` hopes to provide a web interface for displaying results, and a simple system to author your own `Observers` that provide `relevance`, `clustering`, and `ranking` models. As a user of `clurk`, you will be responsible for converting your document set into a csv of features.
+
+The project follows the pattern bellow...
+
+```
+while True:
+    cluster documents
+    rank clusters
+    report highest ranked values for each cluster
+```
+
 ### Note
 
-This is presently a study in abuse of python coroutines...
+This may also be a study in abuse of python coroutines...
