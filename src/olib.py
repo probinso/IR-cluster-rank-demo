@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import sys
 
 import numpy as np
 
@@ -15,10 +16,10 @@ def selector(D, show=3):
         yield {k: v[0:show, :] for k, v in ranked.items()}
         select = (yield)
 
-        if select == -1:
+        if select not in range(len(ranked)):
             break
         D = ranked[select]
-    return clstrs
+    return ranked
 
 
 class Organizer(np.ndarray):
@@ -98,7 +99,7 @@ def interface(inpath):
     while ctr:
         print(tojson(result))
         _   = next(ctr)
-        key = int(input('>> '))
+        key = int(input('\n>> '))
         result = ctr.send(key)
 
 
