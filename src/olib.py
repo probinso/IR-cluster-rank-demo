@@ -81,6 +81,9 @@ class IRank(Organizer):
 
 
 class IOrganizer(IRank, ICluster, IRelivance):
+    """
+      Identity Organizer does no work for it's client
+    """
     pass
 
 
@@ -88,11 +91,11 @@ def tojson(groups):
     return json.dumps({str(k):v.tolist() for k, v in groups.items()})
 
 
-def interface(inpath):
+def interface(inpath, cls):
     with open(inpath, 'rb') as fd:
         data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
 
-    io = data[:, 0:2].view(IOrganizer)
+    io = data[:, 0:2].view(cls)
 
     ctr = selector(io)
     result = next(ctr)
@@ -113,7 +116,7 @@ def cli_interface():
     except:
         print("usage: {}  <inpath>".format(sys.argv[0]))
         sys.exit(1)
-    interface(inpath)
+    interface(inpath, IOrganizer)
 
 
 if __name__ == '__main__':
