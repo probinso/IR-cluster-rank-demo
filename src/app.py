@@ -17,8 +17,8 @@ STATE = None
 
 @app.route('/reset')
 def read():
-    ifdata = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv'
-    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/names_100_2_5.csv'
+    ifdata = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_5000_2_5.csv'
+    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/names_5000_2_5.csv'
 
     with open(ifdata, 'rb') as fd:
         data = np.loadtxt(fd, delimiter=',', skiprows=1)

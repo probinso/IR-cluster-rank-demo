@@ -1,3 +1,6 @@
 .DS_Store
 *~
 *.pyc
+venv**
+src/demo-data/*.csv
+src/demo-data/*.png
