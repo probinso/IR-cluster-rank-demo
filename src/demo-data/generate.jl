@@ -29,14 +29,14 @@ Data = vcat([X for X in p]...)
 
 using DataFrames
 
-df = DataFrame(x=Data[:, 1], y=Data[:, 2], mux=Data[:, 3], muy=Data[:, 4])
+df = DataFrame(x=Data[:, 1], y=Data[:, 2])
 
 title = "$(oname)_$(size)_$(subsize)_$(depth)"
 writetable("$(title).csv", df)
 
 using Plots
 
-df[:group] = (df[:mux] .* df[:muy])
+df[:group] = (df[:x] .* df[:y])
 
 plt = scatter(df[:x], df[:y], color=df[:group])
 
