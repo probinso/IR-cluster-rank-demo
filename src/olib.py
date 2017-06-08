@@ -6,13 +6,46 @@ import sys
 import numpy as np
 
 
+class Handler:
+    def __init__(self, features, names, cls):
+        """
+          features : document vectors
+          names    : document names
+          cls      : Organizer
+        """
+        self.features = features.view(cls)
+        self.names    = names
+
+    def selector(self, clstr_count=3, show=3):
+        D = self.features
+        C = self.names
+
+        while True:
+
+            cl_idx = D.cluster(clstr_count)
+            clstrs = {k: D[v] for k, v in cl_idx.items()}
+            _names = {k: C[v] for k, v in cl_idx.items()}
+
+            rk_idx = {k: v.rank() for k, v in clstrs.items()}
+            ranked = {k: clstrs[k][v] for k, v in rk_idx.items()}
+            _names = {k: _names[k][v] for k, v in rk_idx.items()}
+
+            yield {k: _names[k][0:show] for k, v in ranked.items()}
+            select = (yield)
+
+            if select not in ranked:
+                break
+            D = ranked[select]
+            C = _names[select]
+
+        # XXX : Better terminal case
+        return ranked
+
+
 class Organizer(np.ndarray):
     """
       DATA : np.array where each index represents a document vector
     """
-    def relivance(self, *args, **kwargs):
-        raise NotImplemented
-
     def cluster(self, *args, **kwargs):
         raise NotImplemented
 
@@ -26,22 +59,6 @@ class Organizer(np.ndarray):
     @property
     def _all_idx(self):
         return np.arange(0, self._count)
-
-    def selector(self, show=3):
-        D = self
-        while True:
-
-            cl_idx = D.cluster()
-            clstrs = {k: D[v, :] for k, v in cl_idx.items()}
-            ranked = {k: v[v.rank(), :] for k, v in clstrs.items()}
-
-            yield {k: v[0:show, :] for k, v in ranked.items()}
-            select = (yield)
-
-            if select not in range(len(ranked)):
-                break
-            D = ranked[select]
-        return ranked
 
 
 class IRelivance(Organizer):
@@ -82,14 +99,14 @@ class IOrganizer(IRank, ICluster, IRelivance):
 
 
 def tojson(groups):
-    return json.dumps({str(k):v.tolist() for k, v in groups.items()})
+    trfm = lambda x : x.decode('utf-8')
+    d = {str(k): [trfm(x) for x in v.tolist()] for k, v in groups.items()}
+    return json.dumps(d)
 
 
-def interface(inpath, cls):
-    with open(inpath, 'rb') as fd:
-        data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
+def interface(data, names, cls):
 
-    io = data[:, 0:2].view(cls)
+    io = Handler(data, names, cls)
 
     ctr = io.selector()
     result = next(ctr)
@@ -106,11 +123,19 @@ def cli_interface():
     from commandline to function space.
     """
     try:
-        inpath = sys.argv[1]
+        data_path = sys.argv[1]
+        feat_path = sys.argv[2]
     except:
-        print("usage: {}  <inpath>".format(sys.argv[0]))
+        print("usage: {}  <feature_path> <name_path>".format(sys.argv[0]))
         sys.exit(1)
-    interface(inpath, IOrganizer)
+
+    with open(data_path, 'rb') as fd:
+        data = np.loadtxt(fd, delimiter=',', skiprows=1)
+
+    with open(feat_path, 'rb') as fd:
+        names = np.loadtxt(fd, delimiter=',', skiprows=1, dtype='|S100')
+
+    interface(data, names, IOrganizer)
 
 
 if __name__ == '__main__':

@@ -17,15 +17,19 @@ STATE = None
 
 @app.route('/reset')
 def read():
-    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv'
+    ifdata = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_100_2_5.csv'
+    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/names_100_2_5.csv'
+
+    with open(ifdata, 'rb') as fd:
+        data = np.loadtxt(fd, delimiter=',', skiprows=1)
 
     with open(ifname, 'rb') as fd:
-        data = np.loadtxt(fd, delimiter=',', skiprows=1).astype('float')
+        names = np.loadtxt(fd, delimiter=',', skiprows=1, dtype='|S100')
 
-    io = data[:, 0:2].view(base.IOrganizer)
+    io = base.Handler(data, names, base.IOrganizer)
 
     global STATE
-    STATE = io.selector(2)
+    STATE = io.selector(7, 3)
 
     return base.tojson(next(STATE))
 
@@ -69,7 +73,7 @@ def data(ndata=100, mdata=1):
 
     """
     tops = ndata * mdata
-    
+
     x = 10 * np.random.rand(tops) - 5
     y = 0.5 * x + 0.5 * np.random.randn(tops)
     A = 10. ** np.random.rand(tops)
