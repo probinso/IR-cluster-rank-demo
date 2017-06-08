@@ -117,7 +117,7 @@ def interface(data, names, cls):
         result = ctr.send(key)
 
 
-def cli_interface():
+def cli_interface(cls=IOrganizer):
     """
     by convention it is helpful to have a wrapper_cli method that interfaces
     from commandline to function space.
@@ -135,7 +135,7 @@ def cli_interface():
     with open(feat_path, 'rb') as fd:
         names = np.loadtxt(fd, delimiter=',', skiprows=1, dtype='|S100')
 
-    interface(data, names, IOrganizer)
+    interface(data, names, cls)
 
 
 if __name__ == '__main__':
