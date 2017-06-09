@@ -22,7 +22,7 @@ class Handler:
 
         while True:
 
-            cl_idx = D.cluster(clstr_count)
+            cl_idx, meta = D.cluster(clstr_count)
             clstrs = {k: D[v] for k, v in cl_idx.items()}
             _names = {k: C[v] for k, v in cl_idx.items()}
 
@@ -30,7 +30,7 @@ class Handler:
             ranked = {k: clstrs[k][v] for k, v in rk_idx.items()}
             _names = {k: _names[k][v] for k, v in rk_idx.items()}
 
-            yield {k: _names[k][0:show] for k, v in ranked.items()}
+            yield {k: {'meta': meta[k], 'documents': _names[k][0:show]} for k, v in ranked.items()}
             select = (yield)
 
             if select not in ranked:
@@ -80,7 +80,8 @@ class ICluster(Organizer):
             return np.split(np.concatenate((a,np.zeros(padding))),n)
 
         clusters = split_padded(self._all_idx, number)
-        return {k: v.astype('int') for k, v in enumerate(clusters)}
+        return {k: v.astype('int') for k, v in enumerate(clusters)}, \
+            {k: None for k, _ in enumerate(clusters)}
 
 
 class IRank(Organizer):
@@ -99,8 +100,8 @@ class IOrganizer(IRank, ICluster, IRelivance):
 
 
 def tojson(groups):
-    trfm = lambda x : x.decode('utf-8')
-    d = {str(k): [trfm(x) for x in v.tolist()] for k, v in groups.items()}
+    trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
+    d = {str(k): { l:  [trfm(x) for x in w.tolist()] for l, w in v.items()}  for k, v in groups.items()}
     return json.dumps(d)
 
 

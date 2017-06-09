@@ -9,6 +9,7 @@ import flask
 import numpy as np
 
 import olib as base
+import preproc
 
 
 app = flask.Flask(__name__)
@@ -17,6 +18,7 @@ STATE = None
 
 @app.route('/reset')
 def read():
+    '''
     ifdata = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_5000_2_5.csv'
     ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/names_5000_2_5.csv'
 
@@ -25,8 +27,11 @@ def read():
 
     with open(ifname, 'rb') as fd:
         names = np.loadtxt(fd, delimiter=',', skiprows=1, dtype='|S100')
+    '''
 
-    io = base.Handler(data, names, base.IOrganizer)
+    data, names, terms = preproc.process('/home/probinso/git/cluster-rank-demo/thousand.json')
+    preproc.terms = terms
+    io = base.Handler(data, names, preproc.CosKMOrganizer)
 
     global STATE
     STATE = io.selector(7, 3)

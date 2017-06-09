@@ -39,6 +39,13 @@ while True:
     select a cluster
 ```
 
+### Lessons
+
+* Image data is complicated, dont start with it
+* Change in needs can dramatically effect UI
+* Most valuable part of numpy is index arrays
+* `numpy` and `scipy` use very different structures and are inconsistant
+
 ### Note
 
 This may also be a study in abuse of python coroutines...
