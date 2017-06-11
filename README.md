@@ -1,4 +1,4 @@
-# clurak
+# Information Retrieval Term Project
 
 Information Retrieval - Cluster Rank Demo Harness
 
