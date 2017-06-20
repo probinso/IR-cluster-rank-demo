@@ -35,6 +35,7 @@ Introducing unsupervised clustering can reduce search time by diversifying resul
 - $\downarrow$ Relevance
 - $\downarrow$ Cluster $\leftarrow\star\cdot$
 - $\downarrow$ Rank
+- $\downarrow$ Display
 - $\downarrow$ Zoom $\;\rightarrow\star\uparrow$ 
 - $\cdot\;$ Select
 
@@ -53,6 +54,12 @@ Introducing unsupervised clustering can reduce search time by diversifying resul
 - Select random documents
 - Generate query sample from `tfidf distribution`
 - Count steps to identifying document
+
+---
+# Lessons
+- Scope/Spec change UIs significantly
+- Images are hard
+- Python is only sometimes an array language
 
 ---
 # Demo
