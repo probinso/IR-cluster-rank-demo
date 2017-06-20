@@ -5,6 +5,7 @@ from functools import partial
 from json import loads
 import re
 import sys
+import json
 
 import sklearn
 from sklearn.cluster import KMeans
@@ -59,13 +60,9 @@ class CosKMOrganizer(IOrganizer):
         # Centers used to identify human readable topics
         global terms
         centers  = results.cluster_centers_.argsort()[:, ::-1]
-        metadata = dict()
-        for i in ulabels:
-            print(centers[i, :6])
-            metadata[i] = terms[centers[i, :6]]
+        metadata = None
 
-        print(centers)
-        return complete, metadata
+        return complete , None
 
 
 def process(data_path):
@@ -79,7 +76,15 @@ def process(data_path):
     titles = np.array(titles)
     matrix = tfidf_vectorizer.fit_transform(documents)
     terms  = np.array(tfidf_vectorizer.get_feature_names())
+
     return matrix.toarray(), titles, terms
+
+def tojson(groups):
+    trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
+
+    d = {str(g): {topic : groups[g][topic].tolist() for topic in groups[g]} for g in groups}
+
+    return json.dumps(d)
 
 
 def cli_interface():

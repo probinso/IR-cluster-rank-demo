@@ -14,29 +14,29 @@ import preproc
 
 app = flask.Flask(__name__)
 
+data, names, terms = None, None, None
 STATE = None
 
-@app.route('/reset')
+@app.route('/load')
 def read():
-    '''
-    ifdata = '/home/probinso/git/cluster-rank-demo/src/demo-data/data_5000_2_5.csv'
-    ifname = '/home/probinso/git/cluster-rank-demo/src/demo-data/names_5000_2_5.csv'
+    global data, names, terms
+    data, names, terms = preproc.process('/home/probinso/git/'
+                                         'cluster-rank-demo/thousand.json')
+    return 'Ready'
 
-    with open(ifdata, 'rb') as fd:
-        data = np.loadtxt(fd, delimiter=',', skiprows=1)
 
-    with open(ifname, 'rb') as fd:
-        names = np.loadtxt(fd, delimiter=',', skiprows=1, dtype='|S100')
-    '''
 
-    data, names, terms = preproc.process('/home/probinso/git/cluster-rank-demo/thousand.json')
+@app.route('/reset')
+def reset():
+    global terms
+
     preproc.terms = terms
     io = base.Handler(data, names, preproc.CosKMOrganizer)
 
     global STATE
-    STATE = io.selector(7, 3)
+    STATE = io.selector(5, 4)
 
-    return base.tojson(next(STATE))
+    return preproc.tojson(next(STATE))
 
 
 import sys

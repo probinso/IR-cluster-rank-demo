@@ -30,7 +30,10 @@ class Handler:
             ranked = {k: clstrs[k][v] for k, v in rk_idx.items()}
             _names = {k: _names[k][v] for k, v in rk_idx.items()}
 
-            yield {k: {'meta': meta[k], 'documents': _names[k][0:show]} for k, v in ranked.items()}
+            #yield {k: {'meta': meta[k], 'documents': _names[k][0:show]}
+            #       for k, v in ranked.items()}
+            yield {k: {'documents': _names[k][0:show]}
+                   for k, v in ranked.items()}
             select = (yield)
 
             if select not in ranked:
@@ -112,7 +115,7 @@ def interface(data, names, cls):
     ctr = io.selector()
     result = next(ctr)
     while ctr:
-        print(tojson(result))
+        print(result)
         _   = next(ctr)
         key = int(input('\n>> '))
         result = ctr.send(key)
