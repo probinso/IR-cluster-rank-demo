@@ -96,6 +96,9 @@ class PostingList(SortedList):
 
         return acc
 
+    def __or__(self, other):
+        return other
+
     def add(self, *args):
         super().add(self._constructor(*args))
 

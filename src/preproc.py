@@ -60,7 +60,6 @@ class CosKMOrganizer(IOrganizer):
         # Centers used to identify human readable topics
         global terms
         centers  = results.cluster_centers_.argsort()[:, ::-1]
-        metadata = None
 
         return complete , None
 
@@ -79,10 +78,12 @@ def process(data_path):
 
     return matrix.toarray(), titles, terms
 
+
 def tojson(groups):
     trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
-
-    d = {str(g): {topic : groups[g][topic].tolist() for topic in groups[g]} for g in groups}
+    d = {str(g):
+         {topic : groups[g][topic].tolist() for topic in groups[g]}
+         for g in groups}
 
     return json.dumps(d)
 
