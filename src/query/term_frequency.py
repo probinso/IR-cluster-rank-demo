@@ -24,16 +24,25 @@ class TFLookupTable(LookupTable):
             for idx, struct_doc in enumerate(fd):
                 self._load_from(idx, struct_doc)
 
+
+    def _transform(self, contents):
+        """
+        transforms blob into tokens, provided as an overloaded function to
+        be used for every non-readable operation, good place for stemmers
+        """
+        return contents.split()
+
     def _load_from(self, idx, struct_doc):
         doc_id, contents = self._extract(idx, struct_doc)
 
-        tf = Counter(contents.split())
+        tf = Counter(self._transform(contents))
         for term in tf:
             self[term].add(doc_id, tf[term])
 
     def query(self, operator, *words):
-        acc    = self._get_docs(operator, *words)
-        scored = self._score(acc, *words)
+        twords = self._transform(' '.join(words))
+        acc    = self._get_docs(operator, *twords)
+        scored = self._score(acc, *twords)
         return scored
 
     def _get_docs(self, operator, *words):
