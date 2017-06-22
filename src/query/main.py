@@ -121,21 +121,36 @@ def interface(ifname):
     lookup = JSONTFLookupTable(TFDocument)
     lookup.populate(ifname)
 
-    # phase one
-    idx, dist = docselect(lookup)
+    while True:
 
-    # phase two
-    head, tail, count = 5, -10, 3
-    qterms = qgenerator(dist, head, tail, count)
+        cmd = input('>> ')
+        if cmd == 'd':
+            # phase one
+            idx, dist = docselect(lookup)
 
-    # phase three
-    results = getresults(qterms, lookup)
+        if cmd == 'q':
+            head, tail, count = map(int, input('head, tail, count >>').split())
+            # phase two
+            head, tail, count = 5, -10, 3
+            qterms = qgenerator(dist, head, tail, count)
 
-    # phase four
-    display(qterms, results, lookup, idx)
+        if cmd == 'r':
+            # phase three
+            results = getresults(qterms, lookup)
 
-    # phase five
-    #save()
+        if cmd == 'd':
+            # phase four
+            display(qterms, results, lookup, idx)
+
+        if cmd == 's':
+            name = input('SAVE PATH >>')
+
+            # phase five
+            ofname = 'jam_session.dat'
+            with open(ofname) as fd:
+                print(*qterms, file=fd)
+                for key, _ in results:
+                    print(key, file=fd)
 
 
 def cli_interface():
