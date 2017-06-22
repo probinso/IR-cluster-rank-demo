@@ -72,7 +72,7 @@ class JSONTFLookupTable(AugmentedTFLookupTable):
         return [s for s in stems if s not in stopwords]
 
 
-import numpy as np 
+import numpy as np
 
 
 # phase one
@@ -121,34 +121,60 @@ def interface(ifname):
     lookup = JSONTFLookupTable(TFDocument)
     lookup.populate(ifname)
 
+    head, tail, count = 5, -10, 3
+    idx, dist = docselect(lookup)
+    qterms  = qgenerator(dist, head, tail, count)
+    results = getresults(qterms, lookup)
+    display(qterms, results, lookup, idx)
+
     while True:
+        print()
+        print('head   :', head)
+        print('tail   :', tail)
+        print('count  :',  count)
+        print('qterms :', *qterms)
+        print('g  - get doc')
+        print('qs  - new query set')
+        print('qr  - new query reset')
+        print('r  - load results')
+        print('d  - display')
+        print('s  - save')
+        print()
 
         cmd = input('>> ')
-        if cmd == 'd':
+        if cmd == 'g':
             # phase one
             idx, dist = docselect(lookup)
+            cmd = 'qr'
 
-        if cmd == 'q':
-            head, tail, count = map(int, input('head, tail, count >>').split())
+        if cmd == 'qs':
+            try:
+                head, tail, count = map(int, input('head, tail, count >> ').split())
+            except:
+                continue
             # phase two
-            head, tail, count = 5, -10, 3
             qterms = qgenerator(dist, head, tail, count)
+            cmd = 'r'
+
+        if cmd == 'qr':
+            qterms = qgenerator(dist, head, tail, count)
+            cmd = 'r'
 
         if cmd == 'r':
             # phase three
             results = getresults(qterms, lookup)
+            cmd = 'd'
 
         if cmd == 'd':
             # phase four
             display(qterms, results, lookup, idx)
 
         if cmd == 's':
-            name = input('SAVE PATH >>')
+            ofname = input('SAVE PATH >> ')
 
             # phase five
-            ofname = 'jam_session.dat'
-            with open(ofname) as fd:
-                print(*qterms, file=fd)
+            with open(ofname+'.dat', 'w+') as fd:
+                print(*qterms, ':', idx, file=fd)
                 for key, _ in results:
                     print(key, file=fd)
 
