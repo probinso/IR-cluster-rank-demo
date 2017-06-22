@@ -1,0 +1,70 @@
+\documentclass[11pt]{article} % letterpaper is american!
+
+\usepackage[british,UKenglish,USenglish,english,american]{babel}
+\usepackage[pdftex]{graphicx}
+\usepackage{epstopdf}
+
+\usepackage{amsfonts,amsmath,amsthm,amssymb}
+
+\usepackage{tikz,pgf}
+\usetikzlibrary{fit}
+
+\pagestyle{empty}
+\setlength{\parindent}{0mm}
+\usepackage[letterpaper, margin=1in]{geometry}
+%\usepackage{showframe}
+
+\usepackage{multicol}
+\usepackage{enumerate}
+
+\usepackage{verbatim}
+
+\usepackage{xspace}
+\usepackage{url}
+\usepackage{cite}
+
+\usepackage{coffee4}
+
+\usepackage{titlesec}
+\titlespacing*{\subsubsection}{0pt}{*0}{*0}
+\titlespacing*{\subsection}{0pt}{0pt}{*0}
+\titlespacing*{\section}{0pt}{0pt}{*0}
+
+\newcommand{\Bold}{\mathbf}
+
+\setlength{\parskip}{1em}
+\setlength{\parindent}{1em}
+
+\title{Accountabilibuddy Passwords System}
+\date{\today}
+\author{Philip Robinson}
+
+
+\begin{document}
+\maketitle
+\cofeAm{1}{1.0}{0}{5.5cm}{3cm}
+\cofeCm{0.9}{1}{180}{0}{0}
+\begin{abstract}
+  It is often the case that initial query compositions result in frequent restarts as
+  the user negotiates with their retrieval system. This is likely a product of unfortunate
+  query formulations or choice of ranking algorithm. Our proposed retrieval system
+  encourages diversity in displayed documents by introducing an unsupervised clustering
+  step before displaying results. The clusters are then presented to the user with their
+  documents ranked independent of each group. We do this by clearly seperating the
+  retrieval process into the three steps \texttt{relevance}, \texttt{clustering}, and
+  \texttt{ranking}, then allow the user to recurse this process on a cluster (rather
+  than restarting their query). Additionally, we propose a simple method to
+  compare results against varying quality tfidf queries. Our final product is a demo
+  harness that abstracts these steps, so that others may easily produce and reproduce
+  prototypes against their own corpora.
+\end{abstract}
+\section*{General Terms}
+\section*{Keywords}
+\section*{Introduction}
+\section*{Implementation Details}
+\section*{Evaluation Approach}
+\section*{Expirimental Results}
+\section*{Limitations}
+\section*{References}
+
+\end{document}
