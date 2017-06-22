@@ -3,7 +3,7 @@
 # Batteries
 from functools import partial
 import json
-from operator import and_, itemgetter
+from operator import and_, or_, itemgetter
 import random
 import re
 import sys
@@ -44,7 +44,7 @@ class AugmentedTFLookupTable(TFLookupTable):
 
         contents = document['contents']
         tokens   = self._transform(contents)
-        #print(tokens)
+        # print(tokens)
 
         dist = dict()
         for s in set(tokens):
@@ -74,30 +74,68 @@ class JSONTFLookupTable(AugmentedTFLookupTable):
 
 import numpy as np 
 
-def interface(ifname):
-    lookup = JSONTFLookupTable(TFDocument)
 
-    lookup.populate(ifname)
+# phase one
+def docselect(lookup):
     idx  = lookup._randdoc()
     dist = sorted(lookup._distribution(idx).items(), key=itemgetter(1), reverse=True)
+    return idx, dist
 
-    head, tail = 50, -1
+
+# phase two
+def qgenerator(dist, head=5, tail=-10, count=3):
     words, _ = zip(*dist[head:tail])
     scores   = _ / np.sum(_)
 
-    count  = 2
     qterms = np.random.choice(words, count, p=scores)
+    return qterms
+
+
+# phase three
+def getresults(qterms, lookup):
+    _ = lookup.query(or_, *qterms)
+    results = sorted(_.items(), key=itemgetter(1), reverse=True)
+    return results
+
+
+# phase four
+def display(qterms, results, lookup, idx):
+    rank = next((i for i, v in enumerate(results) if v[0] == idx), -1)
 
     print(qterms)
     print(lookup.corpus[idx]['title'])
 
-    results = lookup.query(and_, *qterms)
-    print(len(results))
-    print(idx in results)
+    print('located at ', rank, 'of', len(results))
     print()
-    for res in results:
-        print(lookup.corpus[res]['title'])
-        pass
+
+    for i, pair in enumerate(results):
+        key, value = pair
+        print(lookup.corpus[key]['title'], value)
+        if i > rank:
+            break
+
+
+def interface(ifname):
+
+    # phase zero
+    lookup = JSONTFLookupTable(TFDocument)
+    lookup.populate(ifname)
+
+    # phase one
+    idx, dist = docselect(lookup)
+
+    # phase two
+    head, tail, count = 5, -10, 3
+    qterms = qgenerator(dist, head, tail, count)
+
+    # phase three
+    results = getresults(qterms, lookup)
+
+    # phase four
+    display(qterms, results, lookup, idx)
+
+    # phase five
+    #save()
 
 
 def cli_interface():
@@ -108,7 +146,7 @@ def cli_interface():
     try:
         inpath  = sys.argv[1]
     except:
-        print("usage: {}  <inpath>".format(sys.argv[0]))
+        print("usage: {}  <inpath>  <outpath>".format(sys.argv[0]))
         sys.exit(1)
     interface(inpath)
 

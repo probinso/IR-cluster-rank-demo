@@ -103,13 +103,16 @@ class IOrganizer(IRank, ICluster, IRelivance):
 
 def tojson(groups):
     trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
-    d = {str(k): { l:  [trfm(x) for x in w.tolist()] for l, w in v.items()}  for k, v in groups.items()}
+    d = {str(k): { l:
+                   [trfm(x) for x in w.tolist()]
+                   for l, w in v.items()}
+         for k, v in groups.items()}
+
     return json.dumps(d)
 
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
-
 
 def interface(data, names, cls):
 

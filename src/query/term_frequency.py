@@ -52,10 +52,24 @@ class TFLookupTable(LookupTable):
         for w in words:
             for d in docs:
                 doc_id, *_ = d
-                value = next(obj for obj in self[w] if obj.doc_id==doc_id)
-                acc[w].append(value)
+                try:
+                    idx = self[w].index(d)
+                except ValueError:
+                    # w, 'not in doc', doc_id
+                    continue
+
+                value = self[w][idx]
+
+                try:
+                    acc[w].append(value)
+                except ValueError: # XXX
+                    # Undefined behaviour, bad collision
+                    # print(acc[w][-1])
+                    # print(value)
+                    continue
+
         return acc
-    
+
     def _score(self, lookuptable, *words):
         dfreq = {w:len(self[w]) for w in words}
         divby = lambda den: lambda num: num/den

@@ -69,10 +69,13 @@ class PostingList(SortedList):
 
     def __and__(self, other):
         """
-        the exact INTERSECT algorithm from Manning Chapter 1
+        the exact INTERSECT algorithm from 
+        Manning Chapter 1
         """
+        safe_next = lambda iterator: \
+                    next(iterator, done)
         done = object()
-        safe_next = lambda iterator: next(iterator, done)
+
         it  = iter(self)
         jt  = iter(other)
 
@@ -97,7 +100,38 @@ class PostingList(SortedList):
         return acc
 
     def __or__(self, other):
-        return other
+        safe_next = lambda iterator: \
+                    next(iterator, done)
+        done = object()
+
+        it = iter(self)
+        jt = iter(other)
+
+        acc = PostingList(self._constructor)
+        i_doc, j_doc = safe_next(it), safe_next(jt)
+        while True:
+            if i_doc is done:
+                acc.extend(jt)
+                break
+            elif j_doc is done:
+                acc.extend(it)
+                break
+
+            if i_doc == j_doc:
+                acc.append(i_doc)
+                i_doc = safe_next(it)
+                j_doc = safe_next(jt)
+                continue
+
+            if i_doc < j_doc:
+                acc.append(i_doc)
+                i_doc = safe_next(it)
+            else:
+                acc.append(j_doc)
+                j_doc = safe_next(jt)
+
+        return acc
+
 
     def add(self, *args):
         super().add(self._constructor(*args))
