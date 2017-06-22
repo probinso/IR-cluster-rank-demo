@@ -26,14 +26,15 @@ stemmer   = SnowballStemmer(language)
 
 terms = None
 
-def tokenize(text):
+def tokenize(contents):
     tokens = (word
-     for sent in nltk.sent_tokenize(text)
-     for word in nltk.word_tokenize(sent))
+              for sent in nltk.sent_tokenize(contents)
+              for word in nltk.word_tokenize(sent))
 
-    onlywords = partial(re.search, '^[A-Za-z]*$')
+    isnotstop = lambda s: s not in stopwords
+    isword    = partial(re.search, '^[A-Za-z]*$')
 
-    stems = map(stemmer.stem, filter(onlywords, tokens))
+    stems = map(stemmer.stem, filter(isword, filter(isnotstop, tokens)))
     return [s for s in stems if s not in stopwords]
 
 
@@ -58,10 +59,15 @@ class CosKMOrganizer(IOrganizer):
             complete[l] = keys
 
         # Centers used to identify human readable topics
-        global terms
-        centers  = results.cluster_centers_.argsort()[:, ::-1]
+        # global terms
+        # centers  = results.cluster_centers_.argsort()[:, ::-1]
 
-        return complete , None
+        return complete , {k: None for k in complete}
+
+    def rank(self, *rankargs):
+        #query  = tokenize(' '.join(rankargs))
+        #matrix = tfidf_vectorizer.fit_transform(self)
+        return super().rank(*rankargs)
 
 
 def process(data_path):
@@ -101,8 +107,9 @@ def cli_interface():
 
     global terms
     matrix, titles, terms = process(data_path)
+    print(terms)
     
-    interface(matrix, titles, CosKMOrganizer)
+    interface(matrix, titles, terms, CosKMOrganizer)
 
 
 if __name__ == '__main__':

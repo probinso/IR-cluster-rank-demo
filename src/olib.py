@@ -7,14 +7,17 @@ import numpy as np
 
 
 class Handler:
-    def __init__(self, features, names, cls):
+    def __init__(self, features, names, terms, cls, *rankargs):
         """
           features : document vectors
           names    : document names
           cls      : Organizer
+          rankargs : rank parameters
         """
-        self.features = features.view(cls)
+        self.features = features.view(cls) # cls
         self.names    = names
+        self.terms    = terms
+        self.rankargs = rankargs
 
     def selector(self, clstr_count=3, show=3):
         D = self.features
@@ -26,7 +29,7 @@ class Handler:
             clstrs = {k: D[v] for k, v in cl_idx.items()}
             _names = {k: C[v] for k, v in cl_idx.items()}
 
-            rk_idx = {k: v.rank() for k, v in clstrs.items()}
+            rk_idx = {k: v.rank(*self.rankargs) for k, v in clstrs.items()}
             ranked = {k: clstrs[k][v] for k, v in rk_idx.items()}
             _names = {k: _names[k][v] for k, v in rk_idx.items()}
 
@@ -78,7 +81,7 @@ class ICluster(Organizer):
           that indicate documents in each cluster
         """
         def split_padded(a,n):
-            padding = (-len(a))%n
+            padding = (-len(a)) % n
             return np.split(np.concatenate((a,np.zeros(padding))),n)
 
         clusters = split_padded(self._all_idx, number)
@@ -114,9 +117,9 @@ def tojson(groups):
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
-def interface(data, names, cls):
+def interface(data, names, terms, cls):
 
-    io = Handler(data, names, cls)
+    io = Handler(data, names, terms, cls)
 
     ctr = io.selector()
     result = next(ctr)

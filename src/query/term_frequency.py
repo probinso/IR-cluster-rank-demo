@@ -50,12 +50,13 @@ class TFLookupTable(LookupTable):
         acc  = LookupTable(self._constructor)
 
         for w in words:
+            value = None
             for d in docs:
                 doc_id, *_ = d
+
                 try:
                     idx = self[w].index(d)
                 except ValueError:
-                    # w, 'not in doc', doc_id
                     continue
 
                 value = self[w][idx]
