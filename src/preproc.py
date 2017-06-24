@@ -45,6 +45,15 @@ tfidf_vectorizer = TfidfVectorizer(
     use_idf=True, tokenizer=tokenize)
 
 
+class IDFRankOrganizer(IOrganizer):
+    def rank(self, queryvec):
+        # provides cos(tfidf) ranking indicies against input query vector
+        dist = cosine_similarity(self, queryvec)
+        idx_dist = sorted(enumerate(dist), key=itemgetter(1), reverse=True)
+        idx  = np.array([key for key, value in idx_dist])
+        return idx
+
+
 class CosKMOrganizer(IOrganizer):
     def cluster(self, n_clusters=3):
         dist = 1 - cosine_similarity(self)
@@ -70,12 +79,9 @@ class CosKMOrganizer(IOrganizer):
 
         return complete , meta
 
-    def rank(self, queryvec):
-        # provides cos(tfidf) ranking indicies against input query vector
-        dist = cosine_similarity(self, queryvec)
-        idx_dist = sorted(enumerate(dist), key=itemgetter(1), reverse=True)
-        idx  = np.array([key for key, value in idx_dist])
-        return idx
+
+class CosKMIDFROrganizer(CosKMOrganizer, IDFRankOrganizer):
+    pass
 
 
 def process(data_path):
@@ -88,14 +94,14 @@ def process(data_path):
     titles = np.array(titles)
     matrix = tfidf_vectorizer.fit_transform(documents)
     terms  = tfidf_vectorizer.get_feature_names()
-    print(len(terms))
+
     query  = tfidf_vectorizer.transform(['cancer'])
 
     return matrix.toarray(), titles, terms, query
 
 
 def tojson(groups):
-    print(groups)
+
     trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
     d = {str(g):
          {'meta' : groups[g]['meta'], 'documents': groups[g]['documents'].tolist()}
@@ -120,7 +126,7 @@ def cli_interface():
     
     matrix, titles, terms, query = process(data_path)
 
-    interface(matrix, titles, terms, CosKMOrganizer, query)
+    interface(matrix, titles, terms, CosKMIDFROrganizer, query)
 
 
 if __name__ == '__main__':
