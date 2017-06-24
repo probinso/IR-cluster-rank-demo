@@ -1,56 +1,20 @@
 #!/usr/bin/env python3
 
-# Batteries
 from functools import partial
 import json
-from operator import and_, or_, itemgetter
-import random
+from operator import or_, itemgetter
 import re
 import sys
-
-# Local
-from term_frequency import TFLookupTable, TFDocument, Counter
 
 import nltk
 from nltk.stem.snowball import SnowballStemmer
 
+from aug_lookup import AugmentedTFLookupTable
+from term_frequency import TFDocument
+
 language  = 'english'
 stopwords = set(nltk.corpus.stopwords.words(language))
 stemmer   = SnowballStemmer(language)
-
-
-class AugmentedTFLookupTable(TFLookupTable):
-    """
-    Extends TFLookuptable to load all corpus in memory as well
-    """
-    def __init__(self, *args, **kwargs):
-        self.corpus = dict()
-        super().__init__(*args, **kwargs)
-
-    def _load_from(self, idx, struct_doc):
-        doc_id, contents = self._extract(idx, struct_doc)
-
-        self.corpus[idx] = {'title': doc_id, 'contents' : contents}
-
-        tf = Counter(self._transform(contents))
-        for term in tf:
-            self[term].add(idx, tf[term])
-
-    def _randdoc(self):
-        return random.choice(list(self.corpus))
-
-    def _distribution(self, idx):
-        document = self.corpus[idx]
-
-        contents = document['contents']
-        tokens   = self._transform(contents)
-        # print(tokens)
-
-        dist = dict()
-        for s in set(tokens):
-            results = self.query(and_, s)
-            dist[s] = results[idx]
-        return dist
 
 
 class JSONTFLookupTable(AugmentedTFLookupTable):
@@ -73,7 +37,6 @@ class JSONTFLookupTable(AugmentedTFLookupTable):
 
 
 import numpy as np
-
 
 # phase one
 def docselect(lookup):
