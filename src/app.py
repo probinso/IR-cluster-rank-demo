@@ -14,15 +14,16 @@ import preproc
 
 app = flask.Flask(__name__)
 
-data, names, terms = None, None, None
+data_path = '/home/probinso/git/cluster-rank-demo/tenthousand.json'
+
+data, names, terms, query = None, None, None, None
 STATE = None
 
-@app.route('/load')
+@app.route("/")
 def read():
-    global data, names, terms
-    data, names, terms = preproc.process('/home/probinso/git/'
-                                         'cluster-rank-demo/thousand.json')
-    return 'Ready'
+    global data, names, terms, query, data_path
+    data, names, terms, query = preproc.process(data_path)
+    return 'Ready <a href="http://127.0.0.1:8000/reset">NEXT</a>'
 
 
 
@@ -31,10 +32,10 @@ def reset():
     global terms
 
     preproc.terms = terms
-    io = base.Handler(data, names, preproc.CosKMOrganizer)
+    io = base.Handler(data, names, terms, preproc.CosKMOrganizer, query)
 
     global STATE
-    STATE = io.selector(5, 4)
+    STATE = io.selector(3, 4)
 
     return preproc.tojson(next(STATE))
 
@@ -44,7 +45,7 @@ import sys
 
 def increment(clstr_id):
     _ = next(STATE)
-    return base.tojson(STATE.send(clstr_id))
+    return preproc.tojson(STATE.send(clstr_id))
 
 @app.route('/select/<int:clstr_id>')
 def select(clstr_id):
@@ -54,14 +55,14 @@ def select(clstr_id):
 def choose():
     return increment(-1)
 
-
+'''
 @app.route("/")
 def index():
     """
     When you request the root path, you'll get the index.html template.
     """
     return flask.render_template("index.html")
-
+'''
 
 @app.route("/data")
 @app.route("/data/<int:ndata>")
@@ -89,9 +90,17 @@ def data(ndata=100, mdata=1):
 
 
 if __name__ == "__main__":
+    #global data_path
     import os
 
+    '''
+    try:
+        data_path = os.path.realpath(sys.argv[1])
+    except:
+        print("usage: {}  <corpus_path>".format(sys.argv[0]))
+    '''
     port = 8000
+
 
     # Open a web browser pointing at the app.
     os.system("open http://localhost:{0}".format(port))

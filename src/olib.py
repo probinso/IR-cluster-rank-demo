@@ -7,20 +7,20 @@ import numpy as np
 
 
 class Handler:
-    def __init__(self, features, names, terms, cls, *rankargs):
+    def __init__(self, docmatrix, names, terms, cls, *rankargs):
         """
-          features : document vectors
+          docmatrix : document vectors
           names    : document names
           cls      : Organizer
           rankargs : rank parameters
         """
-        self.features = features.view(cls) # cls
+        self.docmatrix = docmatrix.view(cls) # cls
         self.names    = names
         self.terms    = terms
         self.rankargs = rankargs
 
     def selector(self, clstr_count=3, show=3):
-        D = self.features
+        D = self.docmatrix
         C = self.names
 
         while True:
@@ -117,9 +117,9 @@ def tojson(groups):
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
-def interface(data, names, terms, cls):
+def interface(data, names, terms, cls, *rankargs):
 
-    io = Handler(data, names, terms, cls)
+    io = Handler(data, names, terms, cls, *rankargs)
 
     ctr = io.selector()
     result = next(ctr)

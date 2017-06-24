@@ -3,6 +3,7 @@
 from collections import deque
 from functools import partial
 from json import loads
+from operator import itemgetter
 import re
 import sys
 import json
@@ -58,37 +59,47 @@ class CosKMOrganizer(IOrganizer):
             keys = np.array([i for i, b in enumerate(labels==l) if b])
             complete[l] = keys
 
-        # Centers used to identify human readable topics
-        # global terms
-        # centers  = results.cluster_centers_.argsort()[:, ::-1]
+        meta = dict()
+        for l in complete:
+            keys = complete[l]
+            docs = self[keys, :]
+            idf  = np.sum(docs, axis=0)
+            sidx = np.array([key for key, value in
+                             sorted(enumerate(idf), key=itemgetter(1))])
+            meta[l] = [terms[idx] for idx in sidx[:6]]
 
-        return complete , {k: None for k in complete}
+        return complete , meta
 
-    def rank(self, *rankargs):
-        #query  = tokenize(' '.join(rankargs))
-        #matrix = tfidf_vectorizer.fit_transform(self)
-        return super().rank(*rankargs)
+    def rank(self, queryvec):
+        # provides cos(tfidf) ranking indicies against input query vector
+        dist = cosine_similarity(self, queryvec)
+        idx_dist = sorted(enumerate(dist), key=itemgetter(1), reverse=True)
+        idx  = np.array([key for key, value in idx_dist])
+        return idx
 
 
 def process(data_path):
+    documents, titles = [], []
     with open(data_path) as fd:
-        documents, titles = [], []
         for struct in (loads(line) for line in  fd):
-
             documents.append(struct['abstract_text'])
             titles.append(struct['proj_title'])
 
     titles = np.array(titles)
     matrix = tfidf_vectorizer.fit_transform(documents)
-    terms  = np.array(tfidf_vectorizer.get_feature_names())
+    terms  = tfidf_vectorizer.get_feature_names()
+    print(len(terms))
+    query  = tfidf_vectorizer.transform(['cancer'])
 
-    return matrix.toarray(), titles, terms
+    return matrix.toarray(), titles, terms, query
 
 
 def tojson(groups):
+    print(groups)
     trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
     d = {str(g):
-         {topic : groups[g][topic].tolist() for topic in groups[g]}
+         {'meta' : groups[g]['meta'], 'documents': groups[g]['documents'].tolist()}
+         #{topic : groups[g][topic].tolist() for topic in groups[g]}
          for g in groups}
 
     return json.dumps(d)
@@ -106,10 +117,10 @@ def cli_interface():
         sys.exit(1)
 
     global terms
-    matrix, titles, terms = process(data_path)
-    print(terms)
     
-    interface(matrix, titles, terms, CosKMOrganizer)
+    matrix, titles, terms, query = process(data_path)
+
+    interface(matrix, titles, terms, CosKMOrganizer, query)
 
 
 if __name__ == '__main__':
