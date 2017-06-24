@@ -1,7 +1,11 @@
-\documentclass[10pt,twocolumn]{article} % letterpaper is american!
+\documentclass[12pt,twocolumn]{article} % letterpaper is american!
+\usepackage[letterpaper, margin=1in]{geometry}
+\usepackage[british,UKenglish,USenglish,english,american]{babel}
+
+\pagestyle{empty}
+
 \usepackage[affil-it]{authblk}
 
-\usepackage[british,UKenglish,USenglish,english,american]{babel}
 \usepackage[pdftex]{graphicx}
 \usepackage{epstopdf}
 
@@ -10,9 +14,7 @@
 \usepackage{tikz,pgf}
 \usetikzlibrary{fit}
 
-\pagestyle{empty}
 \setlength{\parindent}{0mm}
-\usepackage[letterpaper, margin=1in]{geometry}
 %\usepackage{showframe}
 
 \usepackage{multicol}
@@ -43,8 +45,8 @@
 
 \begin{document}
 \maketitle
-\cofeAm{1}{1.0}{0}{5.5cm}{3cm}
-\cofeCm{0.9}{1}{180}{0}{0}
+\cofeAm{0.2}{0.9}{0}{5.5cm}{3cm}
+\cofeCm{0.1}{1}{180}{0}{0}
 \begin{abstract}
   It is often the case that initial query compositions result in frequent restarts as
   the user negotiates with their retrieval system. This is likely a product of unfortunate
