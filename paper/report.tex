@@ -1,7 +1,7 @@
-\documentclass[10pt,twocolumn]{article} % letterpaper is american!
-%\documentclass[12pt]{article} % letterpaper is american!
-%
-\usepackage[letterpaper, margin=1in]{geometry}
+\documentclass[8pt,twocolumn]{extarticle}
+%\documentclass[12pt]{article}
+
+\usepackage[letterpaper, margin=1in]{geometry} % letterpaper is american!
 \usepackage[british,UKenglish,USenglish,english,american]{babel}
 
 \pagestyle{empty}
@@ -44,6 +44,9 @@
 \date{\today}
 \author{Philip Robinson}
 \affil{Oregon Health Sciences University}
+\def\site{\texttt{https://github.com/probinso/IR-cluster-rank-demo}\xspace}
+
+\def\tfidf{\texttt{tfidf}\xspace}
 
 \begin{document}
 \maketitle
@@ -59,7 +62,7 @@
   retrieval process into the three steps \texttt{relevance}, \texttt{clustering}, and
   \texttt{ranking}, then allow the user to recurse this process on a cluster (rather
   than restarting their query). Additionally, we propose a simple method to
-  compare results against varying quality tfidf queries. Our final product is a demo
+  compare results against varying quality \tfidf queries. Our final product is a demo
   harness that abstracts these steps, so that others may easily produce and reproduce
   prototypes against their own corpora.
 \end{abstract}
@@ -76,40 +79,69 @@ by a non-informative query as being an overfit ranking (to the query). Unfortuna
 overfitting can happen regardless of query quality. In cases where all documents retrieved
 are nearly identical.
 
-Either in the case of non-informated queries or of monolithic document responses, users
+Either in the case of non-informated queries or of monolithic document listings, users
 are often tasked with query reformulation. Reformulation may be an inssuficent mechanism,
 for users not appropriately familure with their target domain. Additionally, as
 a side effect of this workflow, query reformulation can make it difficult to assess
 the general effectiveness of a retrieval system\footnote{reference}.
 
 To prevent overfit rankings some retrieval systems have proposed document diversification
-strategies\footnote{reference}. This can easily be done by similarity or ontological
-clustering of documents either prior to or after query submission. Additionally, to improve
-query formulation many search engines provide similar search terms along side retrieved
-documents\footnote{reference}.
+strategies\footnote{reference}. This can be accomplished by introducing similarity or
+taxomonic clustering of documents either prior to or after query submission. Additionally,
+to improve query formulation many search engines provide similar search terms along side
+retrieved documents\footnote{reference}. These aid terms are usually assigned by experts
+to similar vocabulary or to retrieved documents, and can be expensive to curate.
 
-%We argue that relevence is unlikely to change
+In our system, we propose seperating the query processing pipeline into quaratneened
+steps. We first identify documents by relevence, then perform unsupervised clustering
+of relevent documents, finally rank each cluster by the query provided. We then allow
+the user to zoom in on a cluster. During this process, every cluster is also tagged with
+terms automatically, by providing the grouping's most impactful \tfidf words. These terms
+don't impact the ranking, but act to provide the user with additionall information in
+selecting a term.
 
-%We are interested in combining these two strategies by providing unsupervised clustering
-%on relevent
+We hypothesis that a document clustering will allow users to eliminate poor document
+groupings. Additionally automatic tagging of clusters with relevance terms should allow
+users to navigate a listing retrieved from non-informative queries. To form queries, we
+sample words from randomly selected documents' $\tfidf$ distributions and capture the
+resulting ranking $R_\tfidf$. For a system with $C$-way clustering to be considered
+performant, the same query should yield our target document within $S$ steps.
 
+\[S < log_C (R_\tfidf)\]
 
-%A common means of reducing overfit ranking, and lessoning the query burden of the user is
-%to introduce document diversification techniques.
+As this is a process heavily dependent on each component, we also seperate out these
+concerns to hopefully decrease testing time against multiple corpora, ranking, and
+clustering configurations.
 
-%Document diversification can be used to reduce instances of overfitting to non-informative queries. 
-
-
-%The modern search engines are faced with the
-%enormous task of returning the few most relevant search
-%results based on user query. In general the search results
-%returned using any searching paradigm are not clustered
-%automatically. 
-
+\def\python{\texttt{python}\xspace}
 \section{Implementation Details}
+We provide a retrieval systems harness, developed in \python\footnote{\site}. The
+harness is designed to be used from the command line, but hosts results in a manner
+accessable to a flask server (that is provided).
+
+
 \section{Evaluation Approach}
 \section{Expirimental Results}
 \section{Limitations}
 \section{References}
 
 \end{document}
+
+
+
+%A set of standards is considered performing if it 
+%Ideally, if a system using $C$
+%clusters is said to outperform \tfidf,
+%We propose that clusters of documents can 
+%We argue that relevence is unlikely to change
+%We are interested in combining these two strategies by providing unsupervised clustering
+%on relevent
+%A common means of reducing overfit ranking, and lessoning the query burden of the user is
+%to introduce document diversification techniques.
+%Document diversification can be used to reduce instances of overfitting to non-informative queries. 
+%The modern search engines are faced with the
+%enormous task of returning the few most relevant search
+%results based on user query. In general the search results
+%returned using any searching paradigm are not clustered
+%automatically. 
+

@@ -1,42 +1,18 @@
 #!/usr/bin/env python3
 
-from collections import deque
-from functools import partial
 from json import loads
 from operator import itemgetter
-import re
 import sys
 import json
 
-import sklearn
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-import nltk
-from nltk.stem.snowball import SnowballStemmer
-
 import numpy as np
 
 from olib import Organizer, interface
-
-
-language  = 'english'
-stopwords = set(nltk.corpus.stopwords.words(language))
-stemmer   = SnowballStemmer(language)
-
-
-def tokenize(contents):
-    tokens = (word
-              for sent in nltk.sent_tokenize(contents)
-              for word in nltk.word_tokenize(sent))
-
-    isnotstop = lambda s: s not in stopwords
-    isword    = partial(re.search, '^[A-Za-z]*$')
-
-    stems = map(stemmer.stem, filter(isword, filter(isnotstop, tokens)))
-    return [s for s in stems if s not in stopwords]
-
+from utilities import tokenize, language
 
 tfidf_vectorizer = TfidfVectorizer(
     max_df=0.95, max_features=200000,
@@ -46,9 +22,12 @@ tfidf_vectorizer = TfidfVectorizer(
 
 class IDFRankOrganizer(Organizer):
     def rank(self, queryvec):
-        # provides cos(tfidf) ranking indicies against input query vector
+        # provides cos(tfidf) ranking indicies against
+        #   input query vector
         dist = cosine_similarity(self, queryvec)
-        idx_dist = sorted(enumerate(dist), key=itemgetter(1), reverse=True)
+        idx_dist = sorted(enumerate(dist),
+                          key=itemgetter(1),
+                          reverse=True)
         idx  = np.array([key for key, value in idx_dist])
         return idx
 
@@ -64,7 +43,8 @@ class CosKMOrganizer(Organizer):
         complete = dict()
         ulabels = np.unique(labels)
         for l in ulabels:
-            keys = np.array([i for i, b in enumerate(labels==l) if b])
+            keys = np.array([i for i, b in enumerate(labels==l)
+                             if b])
             complete[l] = keys
 
         meta = dict()
@@ -73,8 +53,9 @@ class CosKMOrganizer(Organizer):
             docs = self[keys, :]
             idf  = np.sum(docs, axis=0)
             sidx = np.array([key for key, value in
-                             sorted(enumerate(idf), key=itemgetter(1))])
-            meta[l] = [terms[idx] for idx in sidx[:6]]
+                             sorted(enumerate(idf),
+                                    key=itemgetter(1))])
+            meta[l] = [terms[idx] for idx in sidx[:10]]
 
         return complete, meta
 
@@ -100,8 +81,7 @@ def process(data_path):
 
 
 def tojson(groups):
-
-    trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
+    #trfm = lambda x : x.decode('utf-8') if not isinstance(x, str) else x
     d = {str(g):
          {'meta' : groups[g]['meta'], 'documents': groups[g]['documents'].tolist()}
          #{topic : groups[g][topic].tolist() for topic in groups[g]}
@@ -121,10 +101,7 @@ def cli_interface():
         print("usage: {}  <feature_path>".format(sys.argv[0]))
         sys.exit(1)
 
-    #global terms
-    
     matrix, titles, terms, query = process(data_path)
-
     interface(matrix, titles, terms, CosKMIDFROrganizer, query)
 
 

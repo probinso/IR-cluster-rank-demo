@@ -19,6 +19,9 @@ class Handler:
         self.terms    = terms
         self.rankargs = rankargs
 
+    def _tojson(self, groups):
+        raise NotImplemented
+
     def selector(self, clstr_count=3, show=3):
         D = self.docmatrix
         C = self.names
