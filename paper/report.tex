@@ -1,4 +1,6 @@
-\documentclass[12pt,twocolumn]{article} % letterpaper is american!
+\documentclass[10pt,twocolumn]{article} % letterpaper is american!
+%\documentclass[12pt]{article} % letterpaper is american!
+%
 \usepackage[letterpaper, margin=1in]{geometry}
 \usepackage[british,UKenglish,USenglish,english,american]{babel}
 
@@ -65,6 +67,45 @@
 %\section*{General Terms}
 %\section*{Keywords}
 \section{Introduction}
+Information retrieval systems have long suffered from non-informative query formulations
+by their users. Many systems employ techniques such as query expansion, domain ontologies,
+advanced search parameters, to address such difficulties. Unfortunately, most retrieval
+systems presume user provided queries to be informative, and select to return the most
+query-relevent documents. We can interpret a query-relevance ranking on documents retrieved
+by a non-informative query as being an overfit ranking (to the query). Unfortunately, this
+overfitting can happen regardless of query quality. In cases where all documents retrieved
+are nearly identical.
+
+Either in the case of non-informated queries or of monolithic document responses, users
+are often tasked with query reformulation. Reformulation may be an inssuficent mechanism,
+for users not appropriately familure with their target domain. Additionally, as
+a side effect of this workflow, query reformulation can make it difficult to assess
+the general effectiveness of a retrieval system\footnote{reference}.
+
+To prevent overfit rankings some retrieval systems have proposed document diversification
+strategies\footnote{reference}. This can easily be done by similarity or ontological
+clustering of documents either prior to or after query submission. Additionally, to improve
+query formulation many search engines provide similar search terms along side retrieved
+documents\footnote{reference}.
+
+%We argue that relevence is unlikely to change
+
+%We are interested in combining these two strategies by providing unsupervised clustering
+%on relevent
+
+
+%A common means of reducing overfit ranking, and lessoning the query burden of the user is
+%to introduce document diversification techniques.
+
+%Document diversification can be used to reduce instances of overfitting to non-informative queries. 
+
+
+%The modern search engines are faced with the
+%enormous task of returning the few most relevant search
+%results based on user query. In general the search results
+%returned using any searching paradigm are not clustered
+%automatically. 
+
 \section{Implementation Details}
 \section{Evaluation Approach}
 \section{Expirimental Results}

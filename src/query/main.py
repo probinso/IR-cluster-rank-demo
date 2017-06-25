@@ -97,8 +97,8 @@ def interface(ifname):
         print('count  :',  count)
         print('qterms :', *qterms)
         print('g  - get doc')
-        print('qs  - new query set')
-        print('qr  - new query reset')
+        print('qs - new query set')
+        print('qr - new query reset')
         print('r  - load results')
         print('d  - display')
         print('s  - save')
@@ -112,7 +112,8 @@ def interface(ifname):
 
         if cmd == 'qs':
             try:
-                head, tail, count = map(int, input('head, tail, count >> ').split())
+                head, tail, count = \
+                  map(int, input('head, tail, count >> ').split())
             except:
                 continue
             # phase two
@@ -144,8 +145,8 @@ def interface(ifname):
 
 def cli_interface():
     """
-    by convention it is helpful to have a wrapper_cli method that interfaces
-    from commandline to function space.
+    by convention it is helpful to have a wrapper_cli method
+    that interfaces from commandline to function space.
     """
     try:
         inpath  = sys.argv[1]

@@ -18,14 +18,13 @@ from nltk.stem.snowball import SnowballStemmer
 
 import numpy as np
 
-from olib import IOrganizer, interface
+from olib import Organizer, interface
 
 
 language  = 'english'
 stopwords = set(nltk.corpus.stopwords.words(language))
 stemmer   = SnowballStemmer(language)
 
-terms = None
 
 def tokenize(contents):
     tokens = (word
@@ -45,7 +44,7 @@ tfidf_vectorizer = TfidfVectorizer(
     use_idf=True, tokenizer=tokenize)
 
 
-class IDFRankOrganizer(IOrganizer):
+class IDFRankOrganizer(Organizer):
     def rank(self, queryvec):
         # provides cos(tfidf) ranking indicies against input query vector
         dist = cosine_similarity(self, queryvec)
@@ -54,8 +53,8 @@ class IDFRankOrganizer(IOrganizer):
         return idx
 
 
-class CosKMOrganizer(IOrganizer):
-    def cluster(self, n_clusters=3):
+class CosKMOrganizer(Organizer):
+    def cluster(self, terms, n_clusters=3):
         dist = 1 - cosine_similarity(self)
         alg  = KMeans(n_clusters=n_clusters)
 
@@ -77,7 +76,7 @@ class CosKMOrganizer(IOrganizer):
                              sorted(enumerate(idf), key=itemgetter(1))])
             meta[l] = [terms[idx] for idx in sidx[:6]]
 
-        return complete , meta
+        return complete, meta
 
 
 class CosKMIDFROrganizer(CosKMOrganizer, IDFRankOrganizer):
@@ -122,7 +121,7 @@ def cli_interface():
         print("usage: {}  <feature_path>".format(sys.argv[0]))
         sys.exit(1)
 
-    global terms
+    #global terms
     
     matrix, titles, terms, query = process(data_path)
 

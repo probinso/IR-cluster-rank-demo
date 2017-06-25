@@ -25,7 +25,8 @@ class Handler:
 
         while True:
 
-            cl_idx, meta = D.cluster(clstr_count)
+            cl_idx, meta = D.cluster(self.terms, clstr_count)
+
             clstrs = {k: D[v] for k, v in cl_idx.items()}
             _names = {k: C[v] for k, v in cl_idx.items()}
 
@@ -47,11 +48,50 @@ class Handler:
         return ranked
 
 
+class AugmentedHandler(Handler):
+    def __init__(self, target, docmatrix, names, terms, cls, *rankargs):
+        super().__init__(docmatrix, names, terms, cls, *rankargs)
+        self.target = target
+
+    def selector(self, clstr_count=3, show=3):
+        D = self.docmatrix
+        C = self.names
+
+        while True:
+
+            cl_idx, meta = D.cluster(self.terms, clstr_count)
+
+            clstrs = {k: D[v] for k, v in cl_idx.items()}
+            _names = {k: C[v] for k, v in cl_idx.items()}
+
+            rk_idx = {k: v.rank(*self.rankargs) for k, v in clstrs.items()}
+            ranked = {k: clstrs[k][v] for k, v in rk_idx.items()}
+            _names = {k: _names[k][v] for k, v in rk_idx.items()}
+
+            for k in _names:
+                if self.target in _names[k]:
+                    meta[k].append('HERE!!!')
+
+            yield {k: {'meta': meta[k], 'documents': _names[k][0:show]}
+                   for k, v in ranked.items()}
+
+            select = (yield)
+
+            if select not in ranked:
+                break
+            D = ranked[select]
+            C = _names[select]
+
+        # XXX : Better terminal case
+        return ranked
+
+
+
 class Organizer(np.ndarray):
     """
       DATA : np.array where each index represents a document vector
     """
-    def cluster(self, *args, **kwargs):
+    def cluster(self, terms, *args, **kwargs):
         raise NotImplemented
 
     def rank(self, *args, **kwargs):
@@ -82,7 +122,7 @@ class ICluster(Organizer):
         """
         def split_padded(a,n):
             padding = (-len(a)) % n
-            return np.split(np.concatenate((a,np.zeros(padding))),n)
+            return np.split(np.concatenate((a,np.zeros(padding))), n)
 
         clusters = split_padded(self._all_idx, number)
         return {k: v.astype('int') for k, v in enumerate(clusters)}, \
@@ -116,6 +156,19 @@ def tojson(groups):
 
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
+
+def augmented_interface(target, data, names, terms, cls, *rankargs):
+
+    io = AugmentedHandler(target, data, names, terms, cls, *rankargs)
+
+    ctr = io.selector()
+    result = next(ctr)
+    while ctr:
+        pp.pprint(result)
+        _   = next(ctr)
+        key = int(input('\n>> '))
+        result = ctr.send(key)
+
 
 def interface(data, names, terms, cls, *rankargs):
 

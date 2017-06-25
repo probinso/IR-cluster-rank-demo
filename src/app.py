@@ -9,7 +9,7 @@ import flask
 import numpy as np
 
 import olib as base
-import preproc
+import kmidf as preproc
 
 
 app = flask.Flask(__name__)
@@ -32,7 +32,8 @@ def reset():
     global terms
 
     preproc.terms = terms
-    io = base.Handler(data, names, terms, preproc.CosKMOrganizer, query)
+    io = base.Handler(data, names, terms,
+                      preproc.CosKMIDFROrganizer, query)
 
     global STATE
     STATE = io.selector(3, 4)
