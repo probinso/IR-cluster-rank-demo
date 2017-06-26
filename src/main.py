@@ -14,8 +14,10 @@ from nltk.stem.snowball import SnowballStemmer
 from aug_lookup import AugmentedTFLookupTable
 from term_frequency import TFDocument
 from kmidf import CosKMIDFROrganizer
+from ldaidf import LDAIDFROrganizer
 
 from olib import augmented_interface as gobot
+#from olib import interface as gobot
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
@@ -72,8 +74,10 @@ def interface(ifname, qstr, DOCID):
 
     _ = lookup.query(or_, *qstr.split())
     rank = sorted(_.items(), key=itemgetter(1), reverse=True)
+
     docs   = []
     titles = []
+    target = None
     for place, payload in enumerate(rank):
         key, score = payload
 
@@ -82,14 +86,21 @@ def interface(ifname, qstr, DOCID):
 
         if key == DOCID:
             target = place
+            print("BEAT", place)
+
+    if target is None:
+        target = 0
 
     titles = np.array(titles)
     matrix = tfidf_vectorizer.fit_transform(docs)
     terms  = tfidf_vectorizer.get_feature_names()
 
-    query  = tfidf_vectorizer.transform([qstr])
+    query  = np.where(terms==qstr.split())[0] # fuck
 
-    gobot(titles[target], matrix.toarray(), titles, terms,
+    #gobot(titles[target], matrix.toarray(), titles, terms,
+    #      CosKMIDFROrganizer, query)
+    gobot(titles[target],
+          matrix.toarray(), titles, terms,
           CosKMIDFROrganizer, query)
 
 
@@ -105,7 +116,9 @@ def cli_interface():
               format(sys.argv[0]))
         sys.exit(1)
     #interface(inpath, 'vari unavail necessari', 802)
-    interface(inpath, 'motor younger medic vivo', 9871)
+    interface(inpath, 'motor younger medic vivo', 9871) # 52
+    #interface(inpath, 'molecular age disorder', 9871) 
+    interface(inpath, 'motor age medic vivo', 9871) # 25
 
 
 if __name__ == '__main__':

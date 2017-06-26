@@ -73,7 +73,7 @@ class AugmentedHandler(Handler):
 
             for k in _names:
                 if self.target in _names[k]:
-                    meta[k].append('HERE!!!')
+                    meta[k].append('HERE!!! :' + str(np.where(_names[k] == self.target)[0][0]))
 
             yield {k: {'meta': meta[k], 'documents': _names[k][0:show]}
                    for k, v in ranked.items()}
@@ -164,13 +164,19 @@ def augmented_interface(target, data, names, terms, cls, *rankargs):
 
     io = AugmentedHandler(target, data, names, terms, cls, *rankargs)
 
-    ctr = io.selector()
-    result = next(ctr)
+    key = -1
+    ctr = True
     while ctr:
+        if key == -1:
+            ctr = io.selector()
+            result = next(ctr)
+        else:
+            result = ctr.send(key)
+
         pp.pprint(result)
         _   = next(ctr)
         key = int(input('\n>> '))
-        result = ctr.send(key)
+        
 
 
 def interface(data, names, terms, cls, *rankargs):

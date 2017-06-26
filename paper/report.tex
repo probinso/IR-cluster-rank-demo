@@ -1,5 +1,5 @@
-\documentclass[8pt,twocolumn]{extarticle}
-%\documentclass[12pt]{article}
+%\documentclass[8pt,twocolumn]{extarticle}
+\documentclass[11pt]{article}
 
 \usepackage[letterpaper, margin=1in]{geometry} % letterpaper is american!
 \usepackage[british,UKenglish,USenglish,english,american]{babel}
@@ -17,12 +17,25 @@
 \usetikzlibrary{fit}
 
 \setlength{\parindent}{0mm}
+\setlength{\columnsep}{10mm}
 %\usepackage{showframe}
 
 \usepackage{multicol}
 \usepackage{enumerate}
 
 \usepackage{verbatim}
+\usepackage{listings}
+\lstset{%
+    basicstyle       = \scriptsize\ttfamily,,
+    keywordstyle     = \bfseries\color{blue},
+    stringstyle      = \color{magenta},
+    commentstyle     = \color{red},
+    showstringspaces = false,
+    backgroundcolor  = \color{lightgray},
+    numbers          = left,
+    title            = \lstname,
+    numberstyle      = \tiny\color{lightgray}\ttfamily,
+}
 
 \usepackage{xspace}
 \usepackage{url}
@@ -40,13 +53,16 @@
 \setlength{\parskip}{1em}
 \setlength{\parindent}{1em}
 
-\title{Cluster Rank Demo Harness}
+\title{Cluster Rank Demo Harness - Unfortnate Series of Events}
 \date{\today}
 \author{Philip Robinson}
 \affil{Oregon Health Sciences University}
-\def\site{\texttt{https://github.com/probinso/IR-cluster-rank-demo}\xspace}
 
+
+\def\site{\texttt{https://github.com/probinso/IR-cluster-rank-demo}\xspace}
 \def\tfidf{\texttt{tfidf}\xspace}
+\def\python{\texttt{python}\xspace}
+\def\np{\texttt{numpy}\xspace}
 
 \begin{document}
 \maketitle
@@ -58,7 +74,7 @@
   query formulations or choice of ranking algorithm. Our proposed retrieval system
   encourages diversity in displayed documents by introducing an unsupervised clustering
   step before displaying results. The clusters are then presented to the user with their
-  documents ranked independent of each group. We do this by clearly seperating the
+  documents ranked independent of each group. We do this by clearly separating the
   retrieval process into the three steps \texttt{relevance}, \texttt{clustering}, and
   \texttt{ranking}, then allow the user to recurse this process on a cluster (rather
   than restarting their query). Additionally, we propose a simple method to
@@ -74,30 +90,30 @@ Information retrieval systems have long suffered from non-informative query form
 by their users. Many systems employ techniques such as query expansion, domain ontologies,
 advanced search parameters, to address such difficulties. Unfortunately, most retrieval
 systems presume user provided queries to be informative, and select to return the most
-query-relevent documents. We can interpret a query-relevance ranking on documents retrieved
-by a non-informative query as being an overfit ranking (to the query). Unfortunately, this
-overfitting can happen regardless of query quality. In cases where all documents retrieved
+query-relevant documents. We can interpret a query-relevance ranking on documents retrieved
+by a non-informative query as being an over-fit ranking (to the query). Unfortunately, this
+over-fitting can happen regardless of query quality. In cases where all documents retrieved
 are nearly identical.
 
-Either in the case of non-informated queries or of monolithic document listings, users
-are often tasked with query reformulation. Reformulation may be an inssuficent mechanism,
-for users not appropriately familure with their target domain. Additionally, as
+Either in the case of non-informative queries or of monolithic document listings, users
+are often tasked with query reformulation. Reformulation may be an insufficient mechanism,
+for users not appropriately familiar with their target domain. Additionally, as
 a side effect of this workflow, query reformulation can make it difficult to assess
 the general effectiveness of a retrieval system\footnote{reference}.
 
-To prevent overfit rankings some retrieval systems have proposed document diversification
+To prevent over-fit rankings some retrieval systems have proposed document diversification
 strategies\footnote{reference}. This can be accomplished by introducing similarity or
-taxomonic clustering of documents either prior to or after query submission. Additionally,
+taxonomic clustering of documents either prior to or after query submission. Additionally,
 to improve query formulation many search engines provide similar search terms along side
 retrieved documents\footnote{reference}. These aid terms are usually assigned by experts
 to similar vocabulary or to retrieved documents, and can be expensive to curate.
 
-In our system, we propose seperating the query processing pipeline into quaratneened
-steps. We first identify documents by relevence, then perform unsupervised clustering
-of relevent documents, finally rank each cluster by the query provided. We then allow
+In our system, we propose separating the query processing pipeline into quarantined
+steps. We first identify documents by relevance, then perform unsupervised clustering
+of relevant documents, finally rank each cluster by the query provided. We then allow
 the user to zoom in on a cluster. During this process, every cluster is also tagged with
 terms automatically, by providing the grouping's most impactful \tfidf words. These terms
-don't impact the ranking, but act to provide the user with additionall information in
+don't impact the ranking, but act to provide the user with additional information in
 selecting a term.
 
 We hypothesis that a document clustering will allow users to eliminate poor document
@@ -105,43 +121,279 @@ groupings. Additionally automatic tagging of clusters with relevance terms shoul
 users to navigate a listing retrieved from non-informative queries. To form queries, we
 sample words from randomly selected documents' $\tfidf$ distributions and capture the
 resulting ranking $R_\tfidf$. For a system with $C$-way clustering to be considered
-performant, the same query should yield our target document within $S$ steps.
+permanent, the same query should yield our target document within $S$ steps.
 
 \[S < log_C (R_\tfidf)\]
 
-As this is a process heavily dependent on each component, we also seperate out these
+As this is a process heavily dependent on each component, we also separate out these
 concerns to hopefully decrease testing time against multiple corpora, ranking, and
-clustering configurations.
+clustering components.
 
-\def\python{\texttt{python}\xspace}
+%\section{Related Work}
+
 \section{Implementation Details}
 We provide a retrieval systems harness, developed in \python\footnote{\site}. The
 harness is designed to be used from the command line, but hosts results in a manner
-accessable to a flask server (that is provided).
+accessible to a flask server (that is also provided).
+
+In order to reduce complexity\footnote{and scratch the author's wish to use array languages},
+\np arrays were used to track, sort, and split document collections. Interfaces that
+required of designers must yield index arrays. Unfortunately, (presently) this limits
+corpus scaling to what can be handled by \np. As an additional restriction, corpora are
+required to be transformed to \np compliant structures.\footnote{examples found in code}
+
+Provided is the \texttt{olib.Handler} class that orchestrates the cluster, ranking,
+steps as a coroutines. An \texttt{olib.Organizer} is passed as a constructor to the
+\texttt{olib.Hanlder}.
+\texttt{olib.Organizers} which are \np.\texttt{ndarray}s extended with interfaces for
+\texttt{.cluster(vocabulary, n\_clusters)} and \texttt{.rank(*rankargs)}, which raise
+\texttt{NotImplemented} unless provided by designer. Designers implement their own
+\texttt{olib.Organizer}s and overload these methods.
+
+For our test cases, we have \texttt{kmidf.CosKMIDFROrganizer} which is a \tfidf
+ranker coupled with k-means over cosine distance, and \texttt{ldaidf.LDAIDFOrganizer}
+which is a \tfidf ranker coupled with Latent Dirichlet Allocation max clustering.
+Classes pretended with \texttt{Augmented} have been altered for evaluation purposes.
+
+Modifications to a handler allow us an oracle into the performance of a system.
+\texttt{olib.AugmentedHandler} tags a cluster's meta-data with ownership of a target
+document, and it's rank location. This allows us to use traverse a guided path
+through our documents. We still require that discovery of a document is measured by
+it's being placed in the displayed range (top 3 by default) for a cluster.
+
+%\vspace{5em}
+
+%\pagebreak
+\begin{multicols}{2}
+
+\begin{lstlisting}[language=Python]
+class IDFRankOrganizer(Organizer):
+  def rank(self, queryvec):
+    dist = np.sum(self[:, queryvec],axis=1)
+    idx_dist = sorted(enumerate(dist),
+                      key=itemgetter(1),
+                      reverse=True)
+    idx  = np.array([key for key, value
+                     in idx_dist])
+    return idx
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+class CosKMOrganizer(Organizer):
+  def cluster(self, terms, n_clusters=3):
+    dist = 1 - cosine_similarity(self)
+    alg  = KMeans(n_clusters=n_clusters)
+
+    # Fit cosine distance kmeans
+    results  = alg.fit(dist)
+    labels   = results.labels_
+    complete = dict()
+    ulabels  = np.unique(labels)
+    for l in ulabels:
+      keys = np.array([i for i, b in
+               enumerate(labels==l)
+               if b])
+      complete[l] = keys
+
+    ... # populate meta
+
+    return complete, meta
+
+\end{lstlisting}
+
+\columnbreak
+
+\begin{lstlisting}[language=Python]
+class LDAOrganizer(Organizer):
+  def cluster(self, terms, n_clusters=3):
+    lda = LatentDirichletAllocation(
+      n_topics=n_clusters)
+    lda.fit(self)
+
+    topics = lda.transform(self)
+
+    # argmax is a bad assignment choice
+    assigm = topics.argmax(axis=1)
+    labels = np.unique(assigm)
+
+    complete = dict()
+
+    for l in labels:
+      complete[l] = np.where(assigm==l)[0]
+
+    ... # populate meta
+
+    return complete, meta
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python]
+class CosKMIDFROrganizer(
+    CosKMOrganizer, IDFRankOrganizer):
+  pass
+
+class LDAIDFROrganizer(
+    LDAOrganizer, IDFRankOrganizer):
+  pass
+\end{lstlisting}
+
+\end{multicols}
+
+\section{Evaluation}
+\subsection{Approach}
+In order to provide repeatable results without depending on expertly relevance
+and ranked corpora, we base our comparisons against traditional \tfidf. Relevance
+is determined as any document containing any of the query terms, and it's rank is
+defined as $R_\tfidf$ denoting its place in the listing, from \tfidf score
+against these documents. As mentioned above, for a system with $C$-way clustering
+to be considered proffered, an identical query should yield our target document
+within $S$ steps.
+
+In this case, the clusters contain unique document lists\footnote{It is not a
+  restriction of the system that clusters need be unique}. This means that success
+is measured by satisfying bounds for \(S < log_C\left(R_\tfidf\right)\).
+Using the augmented structures, described above, clusters are labeled to contain
+the target document. This however would not be the case in a real environment.
+It is also important to note that some documents contained the only instance of
+a word in the corpus. To prevent sampling these words, we eliminated words with
+\tfidf scores $\geq 1$ from our sample space.
+
+We generated tests against two different systems, the \texttt{kmidf.CosKMIDFROrganizer}
+and the \texttt{kmidf.LDAIDFROrganizer}, with a collection of tenthousand medical
+abstracts.
+
+The unit retrieval was a structure of cluster labels and corresponding document labels with
+meta-data. The image below is an example of a first response on \texttt{kmidf.CosKMIDFROrganizer}.
+
+\begin{lstlisting}
+  {   0: {
+      'documents': [
+        'Molecular Mechanisms Governing Cooperating Motors',
+        'A wrinkle in time: The perception of expressions in the elderly',
+        'Computer simulations of populations of mammalian motor units'],
+      'meta': [
+        'epitheli', 'knockout',
+        'overexpress', 'mutant',
+        'homeostasi', 'downstream',
+        'extracellular', 'kinas',
+        'induct', 'stem',
+        'HERE!!! :27']},
+    1: {
+      'documents': [
+        "The Cyclical Lower-extremity Exercise for Parkinson's Trial",
+        'OLDER BREAST CANCER PATIENTS: RISK FOR COGNITIVE DECLINE',
+        'Statewide Intervention to Reduce Early Mortality in Persons with Mental Illness'],
+      'meta': [
+        'extracellular', 'intracellular',
+        'knockout', 'mutant',
+        'overexpress', 'transgen',
+        'apoptosi', 'transcript',
+        'mammalian', 'ligand']},
+    2: {
+      'documents': [
+        'Optic Nerve Head SDOCT Imaging in Glaucoma',
+        'Multimodal Connectivity for Surgical Mapping',
+        'Molecular Imaging Directed, 3D Ultrasound-guided, Biopsy System'],
+      'meta': [
+        'apoptosi', 'block', 'cycl',
+        'diabet', 'dna', 'elucid',
+        'endotheli', 'homeostasi',
+        'host', 'immun']}}
+  >> 0
+\end{lstlisting}
 
 
-\section{Evaluation Approach}
-\section{Expirimental Results}
-\section{Limitations}
-\section{References}
+\subsection{Results and Discovered Limitations}
+After selecting many documents, from the corpus, at varying query strengths we were
+rarely able to satisfy the success criteria. This may have been due to many factors,
+some of which arose as a serious consequence of pure segregation of clustering from
+ranking. Ranking that isn't informed by clustering would retain the same top documents,
+unless you were (randomly) lucky enough split along the top ranked documents. This
+behavior resulted in stagnating documents at the top of reported clusters, suppressing
+the target document from being selected.
+
+This document suppression was especially bad in k-means. This was likely because the
+the scoring metric for document similarity was in the same space as the ranking.
+Consequently, if a target document was close to a dense centroid, then it would likely
+never hit the visible documents list; as its competing documents would likely
+continue to score high from that region. This was a poor outcome.
+
+Additionally, the soft clustering (found in Latent Dirichlet Allocation) introduced
+problems with reasonable group assignment. As groups became smaller, topics became
+less informative and would often break down. Complicated group assignment algorithms
+(informed by LDA) were used, but resulted in meaningless splits nearing the end
+of a query session.
+
+The most tested document,
+\texttt{id(9871)}\footnote{Molecular Aging of the Human Brain: Genetic Modulation and Functional Outcomes},
+was selected due to the evaluator's ability to understand it's content. The hope
+was to use a cluster's meta-data, in the form of cluster informed keywords, to guide
+sub cluster selection. Unfortunately, due to document suppression, dense documents
+clusters what overlapped with the query results also overloaded the meta search terms.
+Finally, \tfidf distributions weren't updated between clustering steps, which resulted
+in stabilization of terms in groups, (eventually leading to many shared terms across
+groups). The evaluator was unable to appraise cluster selection without the oracle by
+use the assisted query terms; likely due to the costs of document suppression. Similar
+results were found with other documents.
+
+\begin{table}[h!]
+\centering
+\caption{Document Retrieval Performance}
+\label{my-label}
+\begin{tabular}{l|llll}
+doc\_id & Query                                                               & $R_\tfidf$ & LDA  $(S,R_S)$                                                                                                & Kmeans $(S,R_S) $                                                                                           \\\hline
+9871    & \begin{tabular}[c]{@{}l@{}}motor younger \\ medic vivo\end{tabular} & 52         & \begin{tabular}[c]{@{}l@{}}0:15, 1:12, 2:12, 3:11\\ 0:31, 1:30, 2:30, 3:30\\ 0:31, 1:27, 2:27, 3:26\end{tabular} & \begin{tabular}[c]{@{}l@{}}0:31, 1:27, 2:19, 3:10\\ 0:31, 1:27, 2:17, 3:5\\ 0:31, 1:27, 2:17, 3:5\end{tabular} \\\hline
+9871    & \begin{tabular}[c]{@{}l@{}}motor age\\ medic vivo\end{tabular}      & 25         & \begin{tabular}[c]{@{}l@{}}0:16, 1:14, 2:12\\ 0:9, 1:9, 2:9\\ 0:6, 2:6, 3:6\end{tabular}                         & \begin{tabular}[c]{@{}l@{}}0:12, 1:1\\ 0:12, 1:1\\ 0:12, 1:1\end{tabular}
+\end{tabular}
+\end{table}
+
+
+Interestingly, since both k-means over cos-distance and LDA provided very stable results
+on this corpus. It has become apparent, that stable clustering may significantly reduce the
+effects that ranking may have when selecting a cluster to recurse on. Further work may lead
+to better strategies for perturbing these clusters, so that ranking can have more
+interesting effects.
+
+\subsection{Limitations}
+In order to support more sophisticated document clustering and ranking (like those using
+word2vec) we will need to loosen our restriction to \np data structures. Additionally,
+significant speedups could be found in the document relevance lookup, resulting in faster
+testing of configurations to corpora.
+
+Although this was proposed as an evaluation harness, several design decisions weren't made
+with evaluation in mind. The \texttt{AugmentedHandler} behavior should be moved to first
+priority in the class structure, as to provide sane defaults for potential users of the
+system.
+
+\section{Next Steps}
+Firstly, we would like to address any concerns raised from the limitations section. We
+are also interested in providing a full restful API so those who find these systems useful
+may easily host their corpora without much engineering effort.
+
+We are also interested in extending user search to include selecting multiple clusters and
+inject new query terms without restarting their search.
+
+\section{Conclusions}
+This project will likely die in its current encarnation. The results weren't very promising,
+and the discovered fixes violate the original premis. We are still interested in starting
+clean with a retrieval system prototyping harness, but likely starting fresh with our newly
+gained knowlege.
 
 \end{document}
 
 
 
-%A set of standards is considered performing if it 
+%A set of standards is considered performing if it
 %Ideally, if a system using $C$
 %clusters is said to outperform \tfidf,
-%We propose that clusters of documents can 
+%We propose that clusters of documents can
 %We argue that relevence is unlikely to change
 %We are interested in combining these two strategies by providing unsupervised clustering
 %on relevent
 %A common means of reducing overfit ranking, and lessoning the query burden of the user is
 %to introduce document diversification techniques.
-%Document diversification can be used to reduce instances of overfitting to non-informative queries. 
+%Document diversification can be used to reduce instances of overfitting to non-informative queries.
 %The modern search engines are faced with the
 %enormous task of returning the few most relevant search
 %results based on user query. In general the search results
 %returned using any searching paradigm are not clustered
-%automatically. 
-
+%automatically.

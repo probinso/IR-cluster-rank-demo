@@ -8,30 +8,55 @@ import numpy as np
 
 from kmidf import IDFRankOrganizer, process
 from olib  import Organizer, interface
-#from utilities import tokenize, language, stemmer
 
 
 class LDAOrganizer(Organizer):
     def cluster(self, terms, n_clusters=3):
-        lda = LatentDirichletAllocation(n_topics=n_clusters)
+        lda = LatentDirichletAllocation(n_topics=10*n_clusters)
         lda.fit(self)
 
         topics = lda.transform(self)
+
+        # topic selection, using best LDA fit
         assigm = topics.argmax(axis=1)
         labels = np.unique(assigm)
+        for i in range(10000):
+            if labels.size >= n_clusters:
+                break
+            largest = max(labels, key=lambda l: np.sum(assigm==l))
+            keys = np.where(assigm == largest)[0]
+            topics[keys, largest] = np.power(topics[keys, largest], 2)
+
+            assigm = topics.argmax(axis=1)
+            labels = np.unique(assigm)
+
+        # Insufficient diversity randomly splits
+        while labels.size < n_clusters:
+            largest = max(labels, key=lambda l: np.sum(assigm==l))
+            keys = np.where(assigm == largest)[0]
+            assigm[keys[:int(keys.size / 2)]] = max(labels) + 1
+            labels = np.unique(assigm)
+
+        # Too much diversity is merged
+        while labels.size > n_clusters:
+            smallest = sorted(labels, key=lambda l: np.sum(assigm==l))[:2]
+            keys = np.where(assigm == smallest[0])
+            assigm[keys] = smallest[1]
+            labels = np.unique(assigm)
 
         complete = dict()
         for l in labels:
-            complete[l] = np.where(topics.argmax(axis=1)==l)
+            complete[l] = np.where(assigm==l)[0]
 
         meta = dict()
         for l in complete:
             keys = complete[l]
             docs = self[keys, :]
             idf  = np.sum(docs, axis=0)
-            sidx = np.array([key for key, value in
-                             sorted(enumerate(idf),
-                                    key=itemgetter(1))])
+            sidx = np.array(
+                [key for key, value in
+                 sorted(enumerate(idf), key=itemgetter(1))])
+
             meta[l] = [terms[idx] for idx in sidx[:10]]
 
         return complete, meta

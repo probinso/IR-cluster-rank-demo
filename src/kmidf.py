@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
 from olib import Organizer, interface
-from utilities import tokenize, language
+from lutilities import tokenize, language
 
 tfidf_vectorizer = TfidfVectorizer(
     max_df=0.95, max_features=200000,
@@ -24,7 +24,7 @@ class IDFRankOrganizer(Organizer):
     def rank(self, queryvec):
         # provides cos(tfidf) ranking indicies against
         #   input query vector
-        dist = cosine_similarity(self, queryvec)
+        dist = np.sum(self[:, queryvec], axis=1)
         idx_dist = sorted(enumerate(dist),
                           key=itemgetter(1),
                           reverse=True)
