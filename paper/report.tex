@@ -6,6 +6,7 @@
 
 \pagestyle{empty}
 
+\usepackage{textcomp}
 \usepackage[affil-it]{authblk}
 
 \usepackage[pdftex]{graphicx}
@@ -44,9 +45,9 @@
 \usepackage{coffee4}
 
 \usepackage{titlesec}
-\titlespacing*{\subsubsection}{0pt}{*0}{*0}
-\titlespacing*{\subsection}{0pt}{0pt}{*0}
-\titlespacing*{\section}{0pt}{0pt}{*0}
+%\titlespacing*{\subsubsection}{0pt}{*0}{*0}
+%\titlespacing*{\subsection}{0pt}{0pt}{*0}
+%\titlespacing*{\section}{0pt}{0pt}{*0}
 
 \newcommand{\Bold}{\mathbf}
 
@@ -99,15 +100,18 @@ Either in the case of non-informative queries or of monolithic document listings
 are often tasked with query reformulation. Reformulation may be an insufficient mechanism,
 for users not appropriately familiar with their target domain. Additionally, as
 a side effect of this workflow, query reformulation can make it difficult to assess
-the general effectiveness of a retrieval system\footnote{reference}.
+the general effectiveness of a retrieval system\cite{Huang2009}.
 
 To prevent over-fit rankings some retrieval systems have proposed document diversification
-strategies\footnote{reference}. This can be accomplished by introducing similarity or
+strategies\cite{Zhu2014}. This can be accomplished by introducing similarity or
 taxonomic clustering of documents either prior to or after query submission. Additionally,
 to improve query formulation many search engines provide similar search terms along side
-retrieved documents\footnote{reference}. These aid terms are usually assigned by experts
+retrieved documents. These aid terms are usually assigned by experts
 to similar vocabulary or to retrieved documents, and can be expensive to curate.
 
+\subsection{Proposal}
+We propose to develop a harness for prototyping information retrieval systems against
+corpora where clustering and ranking do not inform eachother.
 In our system, we propose separating the query processing pipeline into quarantined
 steps. We first identify documents by relevance, then perform unsupervised clustering
 of relevant documents, finally rank each cluster by the query provided. We then allow
@@ -125,9 +129,9 @@ permanent, the same query should yield our target document within $S$ steps.
 
 \[S < log_C (R_\tfidf)\]
 
-As this is a process heavily dependent on each component, we also separate out these
-concerns to hopefully decrease testing time against multiple corpora, ranking, and
-clustering components.
+As this is a process greatly empowered by composable components, we also separate out
+these concerns in code, to hopefully decrease testing time against multiple corpora,
+ranking, and clustering configurations.
 
 %\section{Related Work}
 
@@ -377,6 +381,10 @@ This project will likely die in its current encarnation. The results weren't ver
 and the discovered fixes violate the original premis. We are still interested in starting
 clean with a retrieval system prototyping harness, but likely starting fresh with our newly
 gained knowlege.
+
+
+\bibliography{ref}
+\bibliographystyle{plain}
 
 \end{document}
 
