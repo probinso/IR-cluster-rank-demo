@@ -57,7 +57,7 @@
 \title{Cluster Rank Demo Harness - Unfortnate Series of Events}
 \date{\today}
 \author{Philip Robinson}
-\affil{Oregon Health Sciences University}
+\affil{Oregon Health \& Science University}
 
 
 \def\site{\texttt{https://github.com/probinso/IR-cluster-rank-demo}\xspace}
@@ -71,17 +71,17 @@
 \cofeCm{0.1}{1}{180}{0}{0}
 \begin{abstract}
   It is often the case that initial query compositions result in frequent restarts as
-  the user negotiates with their retrieval system. This is likely a product of unfortunate
-  query formulations or choice of ranking algorithm. Our proposed retrieval system
-  encourages diversity in displayed documents by introducing an unsupervised clustering
-  step before displaying results. The clusters are then presented to the user with their
-  documents ranked independent of each group. We do this by clearly separating the
-  retrieval process into the three steps \texttt{relevance}, \texttt{clustering}, and
-  \texttt{ranking}, then allow the user to recurse this process on a cluster (rather
-  than restarting their query). Additionally, we propose a simple method to
-  compare results against varying quality \tfidf queries. Our final product is a demo
-  harness that abstracts these steps, so that others may easily produce and reproduce
-  prototypes against their own corpora.
+  the user negotiates with their retrieval system. This is likely a product of a
+  incompatible understanding mapping a query formulation against the choice of ranking
+  algorithm, which results in monolithically incorrect results.
+  To reduce user restarts, the proposed model clearly separates the retrieval
+  process into the three steps \texttt{relevance}, \texttt{clustering}, and
+  \texttt{ranking}. Relevance designates the total document set to operate over.
+  Ranked-clusters are presented to the user without pollution from other groups,
+  allowing users to select a document, or a group to recurse the \texttt{cluster}
+  and \texttt{ranking} steps on. The final product is a demo harness that abstracts
+  these steps, so that others may easily produce, test, and reproduce prototypes
+  against their own corpora; and a likewise an oracle of the system for evaluation.
 \end{abstract}
 
 %\section*{General Terms}
@@ -93,37 +93,34 @@ advanced search parameters, to address such difficulties. Unfortunately, most re
 systems presume user provided queries to be informative, and select to return the most
 query-relevant documents. We can interpret a query-relevance ranking on documents retrieved
 by a non-informative query as being an over-fit ranking (to the query). Unfortunately, this
-over-fitting can happen regardless of query quality. In cases where all documents retrieved
-are nearly identical.
-
-Either in the case of non-informative queries or of monolithic document listings, users
-are often tasked with query reformulation. Reformulation may be an insufficient mechanism,
-for users not appropriately familiar with their target domain. Additionally, as
-a side effect of this workflow, query reformulation can make it difficult to assess
-the general effectiveness of a retrieval system\cite{Huang2009}.
+over-fitting can happen regardless of query quality. This often results the document set
+retrieved being nearly identical. Either in the case of non-informative queries or of
+monolithic document listings, users are often tasked with query reformulation. A side
+effect of this workflow, query reformulation can make it difficult to assess the general
+effectiveness of a retrieval system\cite{Huang2009}.
 
 To prevent over-fit rankings some retrieval systems have proposed document diversification
 strategies\cite{Zhu2014}. This can be accomplished by introducing similarity or
 taxonomic clustering of documents either prior to or after query submission. Additionally,
 to improve query formulation many search engines provide similar search terms along side
-retrieved documents. These aid terms are usually assigned by experts
-to similar vocabulary or to retrieved documents, and can be expensive to curate.
+retrieved documents. These aid terms are usually assigned by experts to similar vocabulary
+or to retrieved documents, and can be expensive to curate.
 
 \subsection{Proposal}
-We propose to develop a harness for prototyping information retrieval systems against
+This model harness allows for prototyping information retrieval systems against
 corpora where clustering and ranking do not inform eachother.
-In our system, we propose separating the query processing pipeline into quarantined
-steps. We first identify documents by relevance, then perform unsupervised clustering
+This system separates the query processing pipeline into quarantined
+steps. First identifying documents by relevance, then perform unsupervised clustering
 of relevant documents, finally rank each cluster by the query provided. We then allow
 the user to zoom in on a cluster. During this process, every cluster is also tagged with
 terms automatically, by providing the grouping's most impactful \tfidf words. These terms
 don't impact the ranking, but act to provide the user with additional information in
 selecting a term.
 
-We hypothesis that a document clustering will allow users to eliminate poor document
+It is hypothesised that a document clustering will allow users to eliminate poor document
 groupings. Additionally automatic tagging of clusters with relevance terms should allow
-users to navigate a listing retrieved from non-informative queries. To form queries, we
-sample words from randomly selected documents' $\tfidf$ distributions and capture the
+users to navigate a listing retrieved from non-informative queries. To form queries,
+sample words are randomly selected documents' $\tfidf$ distributions and capture the
 resulting ranking $R_\tfidf$. For a system with $C$-way clustering to be considered
 permanent, the same query should yield our target document within $S$ steps.
 
@@ -136,7 +133,7 @@ ranking, and clustering configurations.
 %\section{Related Work}
 
 \section{Implementation Details}
-We provide a retrieval systems harness, developed in \python\footnote{\site}. The
+The retrieval systems harness is developed in \python\footnote{\site}. The
 harness is designed to be used from the command line, but hosts results in a manner
 accessible to a flask server (that is also provided).
 
@@ -154,15 +151,15 @@ steps as a coroutines. An \texttt{olib.Organizer} is passed as a constructor to 
 \texttt{NotImplemented} unless provided by designer. Designers implement their own
 \texttt{olib.Organizer}s and overload these methods.
 
-For our test cases, we have \texttt{kmidf.CosKMIDFROrganizer} which is a \tfidf
-ranker coupled with k-means over cosine distance, and \texttt{ldaidf.LDAIDFOrganizer}
-which is a \tfidf ranker coupled with Latent Dirichlet Allocation max clustering.
-Classes pretended with \texttt{Augmented} have been altered for evaluation purposes.
+For test cases \texttt{kmidf.CosKMIDFROrganizer}, a \tfidf
+ranker, is coupled with k-means over cosine distance, and \texttt{ldaidf.LDAIDFOrganizer},
+ a \tfidf ranker, coupled with Latent Dirichlet Allocation max clustering.
+Classes prepended with \texttt{Augmented} have been altered for evaluation purposes.
 
-Modifications to a handler allow us an oracle into the performance of a system.
+Modifications to a handlers allow an oracle into the performance of a system.
 \texttt{olib.AugmentedHandler} tags a cluster's meta-data with ownership of a target
-document, and it's rank location. This allows us to use traverse a guided path
-through our documents. We still require that discovery of a document is measured by
+document, and it's rank location. This allows inspection and traversal of a guided path
+through the documents. Discovery of a document is measured by
 it's being placed in the displayed range (top 3 by default) for a cluster.
 
 %\vspace{5em}
@@ -245,7 +242,7 @@ class LDAIDFROrganizer(
 \section{Evaluation}
 \subsection{Approach}
 In order to provide repeatable results without depending on expertly relevance
-and ranked corpora, we base our comparisons against traditional \tfidf. Relevance
+and ranked corpora, against traditional \tfidf. Relevance
 is determined as any document containing any of the query terms, and it's rank is
 defined as $R_\tfidf$ denoting its place in the listing, from \tfidf score
 against these documents. As mentioned above, for a system with $C$-way clustering
@@ -261,7 +258,7 @@ It is also important to note that some documents contained the only instance of
 a word in the corpus. To prevent sampling these words, we eliminated words with
 \tfidf scores $\geq 1$ from our sample space.
 
-We generated tests against two different systems, the \texttt{kmidf.CosKMIDFROrganizer}
+Tests are generated against two different systems, the \texttt{kmidf.CosKMIDFROrganizer}
 and the \texttt{kmidf.LDAIDFROrganizer}, with a collection of tenthousand medical
 abstracts.
 
