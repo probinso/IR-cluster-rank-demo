@@ -1,10 +1,10 @@
-# Information Retrieval Term Project
+# Information Retrieval Project
 
 Information Retrieval - Cluster Rank Demo Harness
 
 ### Contributors
 
-* Authors : __[Philip Robinson](http://github.com/probinso)__
+* Author : __[Philip Robinson](http://github.com/probinso)__
 * Special thanks to __[Brandon Rose](https://github.com/brandomr)__ and his post on [document clustering in python](http://brandonrose.org/clustering)
 * Derived from [flask-d3-template](https://github.com/dfm/flask-d3-hello-world) by __[Dan Foreman-Mackey](http://danfm.ca/)__
 
